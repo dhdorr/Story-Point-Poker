@@ -3,9 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Don't Panic!</title>
+    <title>Don't Panic! live</title>
+
+    <link rel="stylesheet" href="./static/style.css">
+    <script src="/static/scripts/fixi-0.6.5.js"></script>
+    <script src="/static/scripts/select-card.js"></script>
 </head>
 <body>
-    <h1>Hello there :)</h1>
+    <div class="page-layout-wrapper">
+        <div class="top-nav">
+            <h1>Hello There? :)</h1>
+        </div>
+
+        <!-- <script>
+            function choose(card) {
+                console.log("clicked...");
+                if (card.classList.contains("selected")) {
+                    card.classList.remove("selected");
+                } else {
+                    card.classList.add("selected");
+                }
+            }
+
+            document.addEventListener("fx:config", (evt) => {
+                console.log("current headers: " + evt.detail.cfg.headers);
+                evt.detail.cfg.headers.testme = "don't panic";
+                console.log("After headers: " + evt.detail.cfg.headers);
+            })
+        </script> -->
+
+        <div class="card-wrapper" id="testme">
+            <div class="card" onclick="choose(this)" fx-action="/test" fx-method="get" fx-trigger="click" fx-target="#testme" fx-swap="innerHTML">
+                <div class="card-value-wrapper">
+                    <h2>1</h2>
+                    <h3>Story Point</h3>
+                </div>
+            </div>
+            <div class="card" onclick="choose(this)">
+                <div class="card-value-wrapper">
+                    <h2>2</h2>
+                    <h3>Story Points</h3>
+                </div>
+            </div>
+            <div class="card" onclick="choose(this)">
+                <div class="card-value-wrapper">
+                    <h2>3</h2>
+                    <h3>Story Points</h3>
+                </div>
+            </div>
+            <div class="card" onclick="choose(this)">
+                <div class="card-value-wrapper">
+                    <h2>5</h2>
+                    <h3>Story Points</h3>
+                </div>
+            </div>
+            <div class="card" onclick="choose(this)">
+                <div class="card-value-wrapper">
+                    <h2>8</h2>
+                    <h3>Story Points</h3>
+                </div>
+            </div>
+            <div class="card" onclick="choose(this)">
+                <div class="card-value-wrapper">
+                    <h2>13</h2>
+                    <h3>Story Points</h3>
+                </div>
+            </div>
+            <div class="card" onclick="choose(this)">
+                <div class="card-value-wrapper">
+                    <h2>21</h2>
+                    <h3>Story Points</h3>
+                </div>
+            </div>
+            <div class="card" onclick="choose(this)">
+                <div class="card-value-wrapper">
+                    <h2>?</h2>
+                    <h3>Story Points</h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h1>Hello There? :)</h1>
+        </div>
+    </div>
 </body>
 </html>

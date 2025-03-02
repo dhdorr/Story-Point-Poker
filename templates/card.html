@@ -1,0 +1,11 @@
+
+<div class="card-wrapper" id="testme">
+{{range .Cards}}
+    <div class="card" onclick="choose(this)">
+        <div class="card-value-wrapper">
+            <h2>{{.Value}}</h2>
+            <h3>Story Point</h3>
+        </div>
+    </div>
+{{end}}
+</div>

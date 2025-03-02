@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home Page</title>
+
+    <link rel="stylesheet" href="./static/style.css">
+    <script src="/static/scripts/fixi-0.6.5.js"></script>
+    <script src="/static/scripts/select-card.js"></script>
+</head>
+<body>
+    <div class="page-layout-wrapper">
+        <div class="top-nav">
+            <h1>Hello There? :)</h1>
+        </div>
+
+        <div class="home-content-wrapper" id="home">
+            <div class="join-grid-wrapper">
+                <div class="join-content-wrapper">
+                    <h3>Join Session</h3>
+                    <form action="/join" method="get" fx-action="/join" fx-method="get" fx-target="#home" fx-swap="outerHTML" class="home-form">
+                        <div class="input-wrapper">
+                            <label for="sessionID">Session ID: </label>
+                            <input type="text" id="sessionID" name="sessionID" required pattern="^[a-zA-Z0-9]{4,16}">
+                        </div>
+
+                            <div class="button-wrapper">
+                                <button type="submit" class="join-btn">Join Poker Table</button>
+                            </div>
+                    </form>
+                    <div class="error-dialog" id="errorDialog"></div>
+                </div>
+            </div>
+
+            <div class="create-grid-wrapper">
+                <div class="create-content-wrapper">
+                    <h3>Create Session</h3>
+                    <form fx-action="/create" fx-method="post" fx-target="#home" fx-swap="outerHTML" class="home-form">
+                        <div class="input-wrapper">
+                            <label for="sessionID">Session ID: </label>
+                            <input type="text" id="sessionID" name="sessionID" required pattern="^[a-zA-Z0-9]{4,16}">
+                        </div>
+
+                        
+                        <fieldset>
+                            <legend>Select Poker Card Preset:</legend>
+                            <div>
+                                <input type="radio" id="seq" name="preset" value="seq" checked>
+                                <label for="seq">Sequential</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="fib" name="preset" value="fib">
+                                <label for="fib">Fibonacci</label>
+                            </div>
+                        </fieldset>
+                        <div class="button-wrapper">
+                            <button type="submit" class="create-btn">Create Poker Table</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h1>Hello There? :)</h1>
+        </div>
+    </div>
+</body>
+</html>
