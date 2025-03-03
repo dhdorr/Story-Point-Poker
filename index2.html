@@ -10,61 +10,126 @@
     <script src="/static/scripts/select-card.js"></script>
 </head>
 <body>
-    <div class="page-layout-wrapper">
-        <div class="top-nav">
+    <div class="body-div">
+        <nav class="test-nav">
             <h1>Hello There? :)</h1>
-        </div>
-
-        <div class="home-content-wrapper" id="home">
-            <div class="join-grid-wrapper">
-                <div class="join-content-wrapper">
-                    <h3>Join Session</h3>
-                    <form action="/join" method="get" fx-action="/join" fx-method="get" fx-target="#home" fx-swap="outerHTML" class="home-form">
-                        <div class="input-wrapper">
-                            <label for="sessionID">Session ID: </label>
-                            <input type="text" id="sessionID" name="sessionID" required pattern="^[a-zA-Z0-9]{4,16}">
-                        </div>
-
-                            <div class="button-wrapper">
-                                <button type="submit" class="join-btn">Join Poker Table</button>
-                            </div>
-                    </form>
-                    <div class="error-dialog" id="errorDialog"></div>
-                </div>
+        </nav>
+        <div class="page-layout-wrapper">
+            <div class="top-nav">
+                <h1>Hello There? :)</h1>
             </div>
-
-            <div class="create-grid-wrapper">
-                <div class="create-content-wrapper">
-                    <h3>Create Session</h3>
-                    <form fx-action="/create" fx-method="post" fx-target="#home" fx-swap="outerHTML" class="home-form">
-                        <div class="input-wrapper">
-                            <label for="sessionID">Session ID: </label>
-                            <input type="text" id="sessionID" name="sessionID" required pattern="^[a-zA-Z0-9]{4,16}">
-                        </div>
-
-                        
-                        <fieldset>
-                            <legend>Select Poker Card Preset:</legend>
+    
+            <div class="home-content-wrapper" id="home">
+                <div class="join-grid-wrapper">
+                    <div class="join-content-wrapper">
+                        <h3>Join Session</h3>
+                        <form action="/join" method="get" fx-action="/join" fx-method="get" fx-target="#home" fx-swap="outerHTML" class="home-form">
+                            <div class="input-wrapper">
+                                <section>
+                                    <label for="sessionID">SessionID: </label>
+                                    <input type="text" id="sessionID" name="sessionID" required pattern="^[a-zA-Z0-9]{4,16}">
+                                </section>
+    
+                                <section>
+                                    <label for="passcode">Passcode: </label>
+                                    <input type="text" id="passcode" name="passcode" required pattern="^[a-zA-Z0-9]{4,16}">
+                                </section>
+                            </div>
+    
+                                <div class="button-wrapper">
+                                    <button type="submit" class="join-btn">Join Poker Table</button>
+                                </div>
+                        </form>
+                        <div class="error-dialog" id="errorDialog"></div>
+                    </div>
+                </div>
+    
+                <div class="create-grid-wrapper">
+                    <div class="create-content-wrapper">
+                        <h3>Create Session</h3>
+                        <form fx-action="/create" fx-method="post" fx-target="#home" fx-swap="outerHTML" class="home-form">
+                            <div class="input-wrapper">
+                                <section>
+                                    <label for="sessionID">SessionID: </label>
+                                    <input type="text" id="sessionID" name="sessionID" required pattern="^[a-zA-Z0-9]{4,16}">
+                                </section>
+                                <section>
+                                    <label for="passcode">Passcode: </label>
+                                    <input type="text" id="passcode" name="passcode" required pattern="^[a-zA-Z0-9]{4,16}">
+                                </section>
+                            </div>
+                            <div class="preset-wrapper">
+                                <fieldset>
+                                    <legend>Select Poker Card Preset:</legend>
+                                    <div>
+                                        <input type="radio" id="seq" name="preset" value="seq" checked>
+                                        <label for="seq">Sequential</label>
+                                    </div>
+                                    <div>
+                                        <input type="radio" id="fib" name="preset" value="fib">
+                                        <label for="fib">Fibonacci</label>
+                                    </div>
+                                </fieldset>
+                            </div>
+                            
+                            <div class="button-wrapper">
+                                <button type="submit" class="create-btn">Create Poker Table</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+    
+                <div class="fun-grid-wrapper" id="funBG">
+                    <h3>Fun Stuff</h3>
+                    <div class="fun-inputs">
+                        <fieldset class="fun-fieldset">
+                            <legend>Select Poker Table Skin:</legend>
                             <div>
-                                <input type="radio" id="seq" name="preset" value="seq" checked>
-                                <label for="seq">Sequential</label>
+                                <input type="radio" id="grey" name="skin" value="grey" onchange="swap_skin(this)" data-color="black" checked>
+                                <label for="grey">Grey</label>
                             </div>
                             <div>
-                                <input type="radio" id="fib" name="preset" value="fib">
-                                <label for="fib">Fibonacci</label>
+                                <input type="radio" id="red" name="skin" value="red" onchange="swap_skin(this)" data-color="white">
+                                <label for="red">Red</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="green" name="skin" value="green" onchange="swap_skin(this)" data-color="black">
+                                <label for="green">Green</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="blue" name="skin" value="blue" onchange="swap_skin(this)" data-color="white">
+                                <label for="blue">Blue</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="white" name="skin" value="wheat" onchange="swap_skin(this)" data-color="black">
+                                <label for="white">White</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="black" name="skin" value="black" onchange="swap_skin(this)" data-color="white">
+                                <label for="black">Black</label>
+                            </div>
+                            <div>
+                                <input type="radio" id="rainbow" name="skin" value="rainbow" onchange="swap_skin(this)" data-color="black">
+                                <label for="rainbow">Rainbow</label>
                             </div>
                         </fieldset>
-                        <div class="button-wrapper">
-                            <button type="submit" class="create-btn">Create Poker Table</button>
+                        <div class="username-input">
+                            <label for="username">Username: </label>
+                            <input type="text" id="username" name="username" required pattern="^[a-zA-Z0-9]{4,16}">
                         </div>
-                    </form>
+                    </div>
                 </div>
             </div>
+    
+            <div class="footer">
+                <h1>Hello There? :)</h1>
+            </div>
+            
         </div>
-
-        <div class="footer">
-            <h1>Hello There? :)</h1>
-        </div>
+    </div>
+    
+    <div class="test-footer">
+        <h1>Hello There? :)</h1>
     </div>
 </body>
 </html>

@@ -1,17 +1,31 @@
 
-<div class="card-wrapper" id="testme">
-    {{range .Cards}}
-        <div class="card" onclick="choose(this)">
+<div class="outer-card-wrapper">
+    <div class="card-wrapper {{.Skin}}" id="testme">
+        {{range .Deck}}
+            <div class="card" onclick="choose(this)">
+                <div class="card-value-wrapper">
+                    <h2>{{.Value}}</h2>
+                    <h3>Story Point</h3>
+                </div>
+            </div>
+        {{end}}
+        <div class="card custom-card" onclick="choose(this)">
             <div class="card-value-wrapper">
-                <h2>{{.Value}}</h2>
-                <h3>Story Point</h3>
+                <h2>?</h2>
+                <h3>Custom Story Point</h3>
             </div>
         </div>
-    {{end}}
-    <div class="card custom-card" onclick="choose(this)">
-        <div class="card-value-wrapper">
-            <h2>?</h2>
-            <h3>Custom Story Point</h3>
-        </div>
     </div>
+    <style>
+        .card-wrapper {
+            background-color: {{.Skin}};
+            color: {{.TextColor}};
+        } 
+    </style>
+    <style>
+        .rainbow {
+            background: linear-gradient(90deg, rgba(255,0,0,1) 0%, rgba(255,154,0,1) 10%, rgba(208,222,33,1) 20%, rgba(79,220,74,1) 30%, rgba(63,218,216,1) 40%, rgba(47,201,226,1) 50%, rgba(28,127,238,1) 60%, rgba(95,21,242,1) 70%, rgba(186,12,248,1) 80%, rgba(251,7,217,1) 90%, rgba(255,0,0,1) 100%);
+        }
+    </style>
 </div>
+

@@ -1,8 +1,10 @@
 body {
-    display: flex;
+    /* display: flex;
     width: 100%;
     height: 100vh;
     justify-content: center;
+
+    background-color: rgb(32, 34, 34); */
     margin: 0;
     padding: 0;
 }
@@ -14,13 +16,13 @@ input {
 .page-layout-wrapper {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    /* gap: 10px; */
+    gap: 10px;
     grid-template-rows: 8vh auto 12vh;
     grid-template-areas: 
     "header header header"
     "main main main"
     "footer footer footer";
-    background-color: aquamarine;
+    background-color: darkcyan;
     width: 60vw;
 }
 
@@ -35,44 +37,51 @@ input {
     grid-area: main;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    /* gap: 10px; */
-    grid-template-rows: auto;
+    gap: 10px;
+    grid-template-rows: auto 25vh;
     grid-template-areas: 
-    ". join create .";
+    ". join create ."
+    ". test test .";
+    align-content: center;
 }
 
 .join-grid-wrapper {
     grid-area: join;
-    background-color: antiquewhite;
+    /* background-color: antiquewhite; */
     display: flex;
     height: 100%;
     width: 100%;
     justify-content: center;
-    align-items: center;
+    align-items: end;
 }
 
 .join-content-wrapper {
     background-color: orange;
     display: flex;
     flex-direction: column;
-    height: 30%;
+    height: 100%;
     width: 100%;
+    /* border-right-width: 2px;
+	border-right-color: rgb(100, 100, 100);
+	border-right-style: solid; */
+    border-radius: 1rem;
 }
 .join-content-wrapper h3 {
     text-align: center;
 }
 
 .join-btn {
-    width: 80%;
+    width: 100%;
     height: 100%;
 }
 
 .button-wrapper {
-    width: 100%;
+    width: 80%;
     height: 4vh;
     display: flex;
     justify-content: center;
     margin-top: 0.4rem;
+    margin-bottom: 1rem;
 }
 
 /* .input-wrapper {
@@ -91,47 +100,102 @@ input {
 
 .create-grid-wrapper {
     grid-area: create;
-    background-color: aliceblue;
+    /* background-color: aliceblue; */
     display: flex;
     height: 100%;
     width: 100%;
     justify-content: center;
-    align-items: center;
+    align-items: end;
 }
 
 .create-content-wrapper {
     background-color: turquoise;
     display: flex;
     flex-direction: column;
-    height: 30%;
+    height: 100%;
     width: 100%;
+    /* border-left-width: 2px;
+	border-left-color: rgb(100, 100, 100);
+	border-left-style: solid; */
+    border-radius: 1rem;
 }
 .create-content-wrapper h3 {
     text-align: center;
 }
 
-.create-btn {
+.preset-wrapper {
     width: 80%;
+}
+
+.create-btn {
+    width: 100%;
     height: 100%;
 }
 
-.card-wrapper {
+.fun-grid-wrapper {
+    grid-area: test;
+    width: 100%;
+    background-color: gray;
+    display: flex;
+    flex-direction: column;
+    border-radius: 1rem;
+    outline-width: 10px;
+    outline-color: gold;
+    outline-style: solid;
+    margin-top: 10px;
+}
+.fun-grid-wrapper h3 {
+    text-align: center;
+}
+
+.fun-fieldset {
+    margin-left: 40px;
+    margin-right: 40px;
+}
+
+.fun-inputs {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr 1fr;
+}
+
+.username-input {
+    justify-self: center;
+}
+
+.outer-card-wrapper {
     grid-area: main;
-    background-color: navy;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.card-wrapper {
+    /* grid-area: main; */
+    /* background-color: navy; */
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;
     grid-template-rows: auto;
-    padding: 100px;
+    padding: 50px 100px 50px 100px;
     margin: 0;
     overflow-y: scroll;
+    width: fit-content;
+    height: fit-content;
+    border-radius: 1rem;
+    outline-width: 10px;
+    outline-color: gold;
+    outline-style: solid;
 }
 
 .card {
     background-color: aliceblue;
+    color: black;
     aspect-ratio: 2 / 3;
-    height: 30vh;
+    height: 20vh;
     justify-self: center;
+    border-radius: 0.5rem;
+    text-align: center;
 }
 .card:hover {
     background-color: rgb(122, 140, 161);
@@ -139,8 +203,9 @@ input {
 
 .selected {
     outline-width: 10px;
-    outline-color: yellow;
+    outline-color: gold;
     outline-style: solid;
+    background-color: rgb(122, 140, 161);
 }
 
 .card-value-wrapper {
@@ -162,5 +227,35 @@ input {
 
 .footer {
     grid-area: footer;
-    background-color: rgb(117, 134, 129);
+    background-color: darkslategrey;
+}
+
+.test-nav {
+    background-color: rgb(19, 24, 24);
+    color: white;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    height: 8vh;
+    box-shadow: 0px 0px 6px aquamarine;
+}
+
+.test-footer {
+    background-color: rgb(19, 24, 24);
+    color: white;
+    width: 100%;
+    height: 12vh;
+}
+.test-footer h1 {
+    margin: 0;
+}
+
+.body-div {
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    justify-content: center;
+    margin: 0;
+    padding: 0;
+    background-color: rgb(32, 34, 34);
 }
