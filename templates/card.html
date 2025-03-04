@@ -1,5 +1,13 @@
 
 <div class="outer-card-wrapper">
+    <div class="players-box">
+        <h2>Players</h2>
+        <ul>
+            {{range .Players}}
+            <li>{{.Username}} <span></span></li>
+            {{end}}
+        </ul>
+    </div>
     <div class="card-wrapper {{.Skin}}" id="testme">
         {{range .Deck}}
             <div class="card" onclick="choose(this)">

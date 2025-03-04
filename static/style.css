@@ -165,14 +165,30 @@ input {
 
 .outer-card-wrapper {
     grid-area: main;
-    display: flex;
+    display: grid;
     justify-content: center;
     align-items: center;
+    grid-template-areas: "lside mid rside";
+    grid-template-columns: 1fr 3fr 1fr;
+}
+
+.players-box {
+    grid-area: lside;
+    background: cadetblue;
+    margin-left: 10px;
+    margin-right: 20px;
+    padding-bottom: 1rem;
+    border-radius: 0.5rem;
+    box-shadow: 2px 2px 4px black;
+}
+.players-box h2 {
+    text-align: center;
 }
 
 .card-wrapper {
     /* grid-area: main; */
     /* background-color: navy; */
+    grid-area: mid;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 10px;

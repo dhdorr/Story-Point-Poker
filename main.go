@@ -14,22 +14,27 @@ type Deck struct {
 	Cards []Card
 }
 
+type Player struct {
+	Username string
+}
+
 type Table_Template struct {
 	Deck      []Card
 	Skin      string
 	TextColor string
+	Players   []Player
 }
 
 type Session struct {
 	ID          string
-	Players     int
+	Players     []Player
 	CurrentDeck Deck
 	Passcode    string
 	Closed      bool
 }
 
-func NewSession(id, passcode string, pCount int, closed bool, deck Deck) *Session {
-	return &Session{ID: id, Passcode: passcode, Players: pCount, Closed: closed, CurrentDeck: deck}
+func NewSession(id, passcode string, players []Player, closed bool, deck Deck) *Session {
+	return &Session{ID: id, Passcode: passcode, Players: players, Closed: closed, CurrentDeck: deck}
 }
 
 type Poker_Tables struct {
@@ -61,6 +66,7 @@ func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
 	passcode := r.URL.Query().Get("passcode")
 	skin := r.Header.Get("bg_skin")
 	text_color := r.Header.Get("bg_text")
+	username := r.Header.Get("username")
 
 	error_message := "SessionID or Passcode does not match"
 
@@ -78,8 +84,15 @@ func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, error_message)
 		return
 	}
+
+	tmp := poker.active_sessions[session_id]
+	tmp.Players = append(tmp.Players, Player{Username: username})
+	poker.active_sessions[session_id] = tmp
+
+	fmt.Println(poker.active_sessions[session_id].Players)
+
 	// renderTemplate(w, "test2", nil)
-	ts := Table_Template{Deck: val.CurrentDeck.Cards, Skin: skin, TextColor: text_color}
+	ts := Table_Template{Deck: val.CurrentDeck.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players}
 	renderTemplate(w, "card", &ts)
 }
 
@@ -89,6 +102,7 @@ func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request)
 	passcode := r.FormValue("passcode")
 	skin := r.Header.Get("bg_skin")
 	text_color := r.Header.Get("bg_text")
+	username := r.Header.Get("username")
 
 	fmt.Printf("Session ID: %s | Preset: %s | Passcode: %s", session_id, preset, passcode)
 
@@ -108,8 +122,18 @@ func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request)
 	data := Deck{
 		Cards: cards,
 	}
-	poker.active_sessions[session_id] = *NewSession(session_id, passcode, 0, false, data)
-	ts := Table_Template{Deck: data.Cards, Skin: skin, TextColor: text_color}
+
+	p := []Player{{Username: username}}
+
+	poker.active_sessions[session_id] = *NewSession(session_id, passcode, p, false, data)
+
+	tmp := poker.active_sessions[session_id]
+	// tmp.Players = append(tmp.Players, Player{Username: username})
+	// poker.active_sessions[session_id] = tmp
+
+	fmt.Println(poker.active_sessions[session_id].Players)
+
+	ts := Table_Template{Deck: data.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players}
 	renderTemplate(w, "card", &ts)
 }
 
@@ -126,7 +150,7 @@ func main() {
 			{Value: 5},
 		},
 	}
-	poker_tables.active_sessions["abc123"] = Session{ID: "abc123", Players: 0, CurrentDeck: data, Passcode: "test", Closed: false}
+	poker_tables.active_sessions["abc123"] = Session{ID: "abc123", Players: []Player{Player{Username: "test"}}, CurrentDeck: data, Passcode: "test", Closed: false}
 	// End Test
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {

@@ -7,7 +7,7 @@
 
     <link rel="stylesheet" href="./static/style.css">
     <script src="/static/scripts/fixi-0.6.5.js"></script>
-    <script src="/static/scripts/select-card.js"></script>
+    
 </head>
 <body>
     <div class="body-div">
@@ -115,7 +115,7 @@
                         </fieldset>
                         <div class="username-input">
                             <label for="username">Username: </label>
-                            <input type="text" id="username" name="username" required pattern="^[a-zA-Z0-9]{4,16}">
+                            <input type="text" id="username" name="username" required pattern="^[a-zA-Z0-9]{4,16}" class="username">
                         </div>
                     </div>
                 </div>
@@ -123,6 +123,7 @@
     
             <div class="footer">
                 <h1>Hello There? :)</h1>
+                <progress id="timer" class="progressTimer" max="100" value="0"></progress>
             </div>
             
         </div>
@@ -131,5 +132,8 @@
     <div class="test-footer">
         <h1>Hello There? :)</h1>
     </div>
+    <script src="/static/scripts/select-card.js"></script>
+    <!-- <script src="/static/scripts/testme.js"></script> -->
 </body>
+
 </html>

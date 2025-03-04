@@ -1,5 +1,6 @@
 let bg_skin = "grey";
 let bg_text = "black";
+let username = "guest";
 
 function choose(card) {
     console.log("clicked...");
@@ -35,22 +36,12 @@ function handleErrorResponse(evt) {
 function handleRequest(evt) {
     evt.detail.cfg.headers.bg_skin = bg_skin;
     evt.detail.cfg.headers.bg_text = bg_text;
+    evt.detail.cfg.headers.username = username;
     console.log("testing before req: ", evt.detail.cfg);
 }
 
 document.addEventListener("fx:after", (evt) => handleErrorResponse(evt))
 document.addEventListener("fx:before", (evt) => handleRequest(evt))
-
-// let radios = document.getElementsByName("skin");
-
-// radios.forEach(rad => {
-//     rad.addEventListener("change", function() {
-//         console.log("changing color to " + this.value);
-//         if (this.checked) {
-//             console.log("changing color to " + this.value);
-//         }
-//     })
-// })
 
 function swap_skin(radio) {
     console.log("changing color to " + radio.value);
@@ -67,3 +58,30 @@ function swap_skin(radio) {
     bg_skin = radio.value;
     bg_text = radio.getAttribute("data-color");
 }
+
+const input = document.querySelector(".username");
+
+input.addEventListener("input", updateUsername);
+
+function updateUsername(evt) {
+    // console.log(evt.target.value);
+    username = evt.target.value;
+}
+
+function udpateTimer() {
+    let timeLeft = 1 * 60; // 1 min in seconds
+    const countdownInterval = setInterval(() => {
+        timeLeft--;
+        let time_mins = timeLeft / 60;
+        let pb = document.getElementById("timer")
+        pb.value = timeLeft
+        console.log(`Time left: ${timeLeft} seconds`);
+
+        if (timeLeft <= 0) {
+            clearInterval(countdownInterval);
+            console.log("Time's up!");
+        }
+    }, 1000); // Update every second
+}
+
+udpateTimer();
