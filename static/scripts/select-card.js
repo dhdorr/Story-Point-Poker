@@ -1,19 +1,25 @@
 let bg_skin = "grey";
 let bg_text = "black";
 let username = "guest";
+let selected_card_value = -1;
+let sessionID = "";
+let passcode = "";
 
 function choose(card) {
     console.log("clicked...");
-    if (card.classList.contains("selected")) {
-        card.classList.remove("selected");
-    } else {
-        card.classList.add("selected");
-    }
+    let cards = document.querySelectorAll(".card");
+    cards.forEach(c => {
+        if (c.classList.contains("selected")) {
+            c.classList.remove("selected");
+        }
+    });
+    card.classList.add("selected");
+    selected_card_value = card.getAttribute("value");
+    console.log("testing value: ", selected_card_value);
 }
 
 document.addEventListener("fx:config", (evt) => {
     evt.detail.cfg.headers.testme = "don't panic";
-    console.log("After headers: " + evt.detail.cfg.body);
 })
 
 function logEvt(evt) {
@@ -23,6 +29,8 @@ function logEvt(evt) {
 }
 
 function handleErrorResponse(evt) {
+    console.log("is admin: ", evt.detail.cfg.response.headers.get("isadmin"));
+    // console.log("is admin? ", evt.detail.cfg.response.headers.forEach((value, key) => {console.log(`${key}: ${value}`);}));
     let error_arr = [401, 404];
     if (error_arr.includes(evt.detail.cfg.response.status)) {
         console.log("there was a 404 error...")
@@ -34,9 +42,22 @@ function handleErrorResponse(evt) {
 }
 
 function handleRequest(evt) {
-    evt.detail.cfg.headers.bg_skin = bg_skin;
-    evt.detail.cfg.headers.bg_text = bg_text;
-    evt.detail.cfg.headers.username = username;
+    if (evt.detail.cfg.action == "/join" || evt.detail.cfg.action == "/create") {
+        evt.detail.cfg.headers.bg_skin = bg_skin;
+        evt.detail.cfg.headers.bg_text = bg_text;
+        evt.detail.cfg.headers.username = username;
+        evt.detail.cfg.headers.selected_card_value = selected_card_value;
+
+        sessionID = evt.detail.cfg.body.get("sessionID");
+        passcode = evt.detail.cfg.body.get("passcode");
+    }
+
+    if (evt.detail.cfg.action == "/choose") {
+        evt.detail.cfg.headers.sessionID = sessionID
+        evt.detail.cfg.headers.passcode = passcode
+        evt.detail.cfg.headers.username = username;
+    }
+
     console.log("testing before req: ", evt.detail.cfg);
 }
 
@@ -69,19 +90,19 @@ function updateUsername(evt) {
 }
 
 function udpateTimer() {
-    let timeLeft = 1 * 60; // 1 min in seconds
+    let timeLeft = 1000; // 100 seconds
     const countdownInterval = setInterval(() => {
         timeLeft--;
-        let time_mins = timeLeft / 60;
+        // let time_mins = timeLeft / 60;
         let pb = document.getElementById("timer")
         pb.value = timeLeft
-        console.log(`Time left: ${timeLeft} seconds`);
+        // console.log(`Time left: ${timeLeft} seconds`);
 
         if (timeLeft <= 0) {
             clearInterval(countdownInterval);
             console.log("Time's up!");
         }
-    }, 1000); // Update every second
+    }, 100); // Update every second
 }
 
 udpateTimer();

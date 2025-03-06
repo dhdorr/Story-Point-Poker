@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"html/template"
 	"net/http"
+	"strconv"
 )
 
 type Card struct {
@@ -25,16 +26,22 @@ type Table_Template struct {
 	Players   []Player
 }
 
+type Results_Template struct {
+	Cards []Card
+}
+
 type Session struct {
 	ID          string
 	Players     []Player
 	CurrentDeck Deck
 	Passcode    string
 	Closed      bool
+	Choices     map[string]int
 }
 
 func NewSession(id, passcode string, players []Player, closed bool, deck Deck) *Session {
-	return &Session{ID: id, Passcode: passcode, Players: players, Closed: closed, CurrentDeck: deck}
+	tmp := make(map[string]int)
+	return &Session{ID: id, Passcode: passcode, Players: players, Closed: closed, CurrentDeck: deck, Choices: tmp}
 }
 
 type Poker_Tables struct {
@@ -42,6 +49,7 @@ type Poker_Tables struct {
 }
 
 func renderTemplate(w http.ResponseWriter, tmpl string, ts *Table_Template) {
+	w.Header().Add("isAdmin", "true")
 	t, _ := template.ParseFiles("./templates/" + tmpl + ".html")
 	t.Execute(w, ts)
 }
@@ -61,12 +69,13 @@ func (poker *Poker_Tables) handle_test(w http.ResponseWriter, _ *http.Request) {
 }
 
 func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
-	fmt.Println(r.URL.Query())
-	session_id := r.URL.Query().Get("sessionID")
-	passcode := r.URL.Query().Get("passcode")
+	session_id := r.FormValue("sessionID")
+	passcode := r.FormValue("passcode")
 	skin := r.Header.Get("bg_skin")
 	text_color := r.Header.Get("bg_text")
 	username := r.Header.Get("username")
+
+	// fmt.Println(r.URL.Query())
 
 	error_message := "SessionID or Passcode does not match"
 
@@ -84,7 +93,6 @@ func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, error_message)
 		return
 	}
-
 	tmp := poker.active_sessions[session_id]
 	tmp.Players = append(tmp.Players, Player{Username: username})
 	poker.active_sessions[session_id] = tmp
@@ -96,26 +104,74 @@ func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "card", &ts)
 }
 
+func (poker *Poker_Tables) handle_results(w http.ResponseWriter, r *http.Request) {
+	data := Results_Template{
+		Cards: []Card{
+			{Value: 1},
+			{Value: 2},
+			{Value: 3},
+			{Value: 4},
+			{Value: 5},
+		},
+	}
+	t, _ := template.ParseFiles("./templates/results.html")
+	t.Execute(w, data)
+}
+
 func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request) {
 	session_id := r.FormValue("sessionID")
 	preset := r.FormValue("preset")
 	passcode := r.FormValue("passcode")
+	num_cards := r.FormValue("num-select")
+	time_limit := r.FormValue("time-select")
 	skin := r.Header.Get("bg_skin")
 	text_color := r.Header.Get("bg_text")
 	username := r.Header.Get("username")
 
-	fmt.Printf("Session ID: %s | Preset: %s | Passcode: %s", session_id, preset, passcode)
+	fmt.Printf("Session ID: %s | Preset: %s | Passcode: %s | Number of Cards: %s | Time Limit: %s \n", session_id, preset, passcode, num_cards, time_limit)
 
-	cards := make([]Card, 0, 8)
+	num, err := strconv.Atoi(num_cards)
+	if err != nil {
+		num = 8
+		fmt.Printf("There was an error parsing the num-select list: %s\n", err)
+	}
+
+	if num > 12 {
+		num = 12
+	} else if num < 6 {
+		num = 6
+	}
+
+	tl, err := strconv.Atoi(time_limit)
+	if err != nil {
+		tl = 30
+		fmt.Printf("There was an error parsing the time limit list: %s\n", err)
+	}
+
+	if tl > 90 {
+		tl = 90
+	} else if tl < 10 {
+		tl = 10
+	}
+
+	cards := make([]Card, 0, num)
 
 	if preset == "seq" {
-		for i := 0; i < 8; i++ {
+		for i := 0; i < num; i++ {
 			cards = append(cards, Card{Value: i + 1})
 		}
 	} else if preset == "fib" {
-		fib := []int{1, 2, 3, 5, 8, 13, 21, 34}
-		for i := 0; i < 8; i++ {
-			cards = append(cards, Card{Value: fib[i]})
+		// fib := []int{1, 2, 3, 5, 8, 13, 21, 34}
+		prev := 1
+		val := 1
+		for i := 0; i < num; i++ {
+			fmt.Printf("fib - prev: [%v], val [%v]\n", prev, val)
+			cards = append(cards, Card{Value: val})
+
+			tmp := val + prev
+			prev = val
+			val = tmp
+
 		}
 	}
 
@@ -128,13 +184,26 @@ func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request)
 	poker.active_sessions[session_id] = *NewSession(session_id, passcode, p, false, data)
 
 	tmp := poker.active_sessions[session_id]
-	// tmp.Players = append(tmp.Players, Player{Username: username})
-	// poker.active_sessions[session_id] = tmp
 
 	fmt.Println(poker.active_sessions[session_id].Players)
 
 	ts := Table_Template{Deck: data.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players}
-	renderTemplate(w, "card", &ts)
+	renderTemplate(w, "card-admin", &ts)
+}
+
+func (poker *Poker_Tables) handle_choose(w http.ResponseWriter, r *http.Request) {
+	session_id := r.Header.Get("sessionID")
+	// username := r.Header.Get("username")
+	value := r.FormValue("value")
+	v, _ := strconv.Atoi(value)
+	fmt.Println("value: ", v)
+	fmt.Println("sessionID: ", session_id)
+
+	tmp := poker.active_sessions[session_id]
+	// tmp.Players = append(tmp.Players, Player{Username: username})
+	poker.active_sessions[session_id] = tmp
+
+	fmt.Println(poker.active_sessions[session_id].Players)
 }
 
 func main() {
@@ -150,7 +219,8 @@ func main() {
 			{Value: 5},
 		},
 	}
-	poker_tables.active_sessions["abc123"] = Session{ID: "abc123", Players: []Player{Player{Username: "test"}}, CurrentDeck: data, Passcode: "test", Closed: false}
+	tmp := make(map[string]int)
+	poker_tables.active_sessions["abc123"] = Session{ID: "abc123", Players: []Player{Player{Username: "test"}}, CurrentDeck: data, Passcode: "test", Closed: false, Choices: tmp}
 	// End Test
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -159,9 +229,13 @@ func main() {
 
 	http.HandleFunc("GET /test", poker_tables.handle_test)
 
-	http.HandleFunc("GET /join", poker_tables.handle_join)
+	http.HandleFunc("GET /results", poker_tables.handle_results)
+
+	http.HandleFunc("POST /join", poker_tables.handle_join)
 
 	http.HandleFunc("POST /create", poker_tables.handle_create)
+
+	http.HandleFunc("POST /choose", poker_tables.handle_choose)
 
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))

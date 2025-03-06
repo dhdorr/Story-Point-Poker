@@ -10,18 +10,26 @@
     </div>
     <div class="card-wrapper {{.Skin}}" id="testme">
         {{range .Deck}}
-            <div class="card" onclick="choose(this)" value="{{.Value}}">
+        <form>
+            <input type="hidden" name="value" value="{{.Value}}">
+            <div class="card" onclick="choose(this)" value="{{.Value}}" fx-action="/choose" fx-method="post" fx-swap="innerHTML">
                 <div class="card-value-wrapper">
                     <h2>{{.Value}}</h2>
                     <h3>Story Point</h3>
                 </div>
             </div>
+        </form>
         {{end}}
         <div class="card custom-card" onclick="choose(this)" value="-1">
             <div class="card-value-wrapper">
                 <h2>?</h2>
                 <h3>Custom Story Point</h3>
             </div>
+        </div>
+    </div>
+    <div class="results-btn-wrapper">
+        <div class="results-btn" fx-action="/results" fx-method="get" fx-target="#card-wrapper" fx-swap="innerHTML" form name="value" value="3">
+            <h2>Results</h2>
         </div>
     </div>
     <style>
@@ -36,4 +44,6 @@
         }
     </style>
 </div>
-
+<div class="admin-wrapper">
+    <h2>You are the admin</h2>
+</div>

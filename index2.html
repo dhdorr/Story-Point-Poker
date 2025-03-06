@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Home Page</title>
+    <title>Story Point Poker</title>
 
     <link rel="stylesheet" href="./static/style.css">
     <script src="/static/scripts/fixi-0.6.5.js"></script>
@@ -23,7 +23,7 @@
                 <div class="join-grid-wrapper">
                     <div class="join-content-wrapper">
                         <h3>Join Session</h3>
-                        <form action="/join" method="get" fx-action="/join" fx-method="get" fx-target="#home" fx-swap="outerHTML" class="home-form">
+                        <form fx-action="/join" fx-method="post" fx-target="#home" fx-swap="outerHTML" class="home-form">
                             <div class="input-wrapper">
                                 <section>
                                     <label for="sessionID">SessionID: </label>
@@ -71,7 +71,33 @@
                                     </div>
                                 </fieldset>
                             </div>
-                            
+                            <div class="num-wrapper">
+                                <label for="num-select">Number of cards: </label>
+                                <select name="num-select" id="num-select">
+                                    <option value="6">6</option>
+                                    <option value="7">7</option>
+                                    <option value="8">8</option>
+                                    <option value="9">9</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                            </div>
+                            <div class="time-wrapper">
+                                <label for="time-select">Time limit: </label>
+                                <select name="time-select" id="time-select">
+                                    <option value="-1">♾️</option>
+                                    <option value="10">10</option>
+                                    <option value="20">20</option>
+                                    <option value="30">30</option>
+                                    <option value="40">40</option>
+                                    <option value="50">50</option>
+                                    <option value="60">60</option>
+                                    <option value="70">70</option>
+                                    <option value="80">80</option>
+                                    <option value="90">90</option>
+                                </select>
+                            </div>
                             <div class="button-wrapper">
                                 <button type="submit" class="create-btn">Create Poker Table</button>
                             </div>
@@ -123,7 +149,7 @@
     
             <div class="footer">
                 <h1>Hello There? :)</h1>
-                <progress id="timer" class="progressTimer" max="100" value="0"></progress>
+                <progress id="timer" class="progressTimer" max="1000" value="0"></progress>
             </div>
             
         </div>
