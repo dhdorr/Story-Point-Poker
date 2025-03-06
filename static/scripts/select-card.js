@@ -12,7 +12,13 @@ function choose(card) {
         if (c.classList.contains("selected")) {
             c.classList.remove("selected");
         }
+        if (c.classList.contains("awaiting-selected")) {
+            c.classList.remove("awaiting-selected");
+        }
     });
+    card.classList.add("awaiting-selected");
+    selected_card_value = card.getAttribute("value");
+    return;
     card.classList.add("selected");
     selected_card_value = card.getAttribute("value");
     console.log("testing value: ", selected_card_value);

@@ -193,7 +193,7 @@ func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request)
 
 func (poker *Poker_Tables) handle_choose(w http.ResponseWriter, r *http.Request) {
 	session_id := r.Header.Get("sessionID")
-	// username := r.Header.Get("username")
+	username := r.Header.Get("username")
 	value := r.FormValue("value")
 	v, _ := strconv.Atoi(value)
 	fmt.Println("value: ", v)
@@ -201,9 +201,18 @@ func (poker *Poker_Tables) handle_choose(w http.ResponseWriter, r *http.Request)
 
 	tmp := poker.active_sessions[session_id]
 	// tmp.Players = append(tmp.Players, Player{Username: username})
+	tmp.Choices[username] = v
 	poker.active_sessions[session_id] = tmp
 
-	fmt.Println(poker.active_sessions[session_id].Players)
+	fmt.Println(poker.active_sessions[session_id].Choices)
+
+	t, _ := template.ParseFiles("./templates/card-selected.html")
+	type cardSelected struct {
+		Value int
+	}
+	data := cardSelected{Value: v}
+	t.Execute(w, data)
+
 }
 
 func main() {

@@ -10,9 +10,9 @@
     </div>
     <div class="card-wrapper {{.Skin}}" id="testme">
         {{range .Deck}}
-        <form>
+        <form id="cardOption">
             <input type="hidden" name="value" value="{{.Value}}">
-            <div class="card" onclick="choose(this)" value="{{.Value}}" fx-action="/choose" fx-method="post" fx-swap="innerHTML">
+            <div class="card" onclick="choose(this)" value="{{.Value}}" fx-action="/choose" fx-method="post" fx-swap="innerHTML" fx-target="cardOption">
                 <div class="card-value-wrapper">
                     <h2>{{.Value}}</h2>
                     <h3>Story Point</h3>

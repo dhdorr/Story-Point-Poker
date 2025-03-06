@@ -249,6 +249,12 @@ input {
     background-color: rgb(122, 140, 161);
 }
 
+.awaiting-selected {
+    outline-width: 10px;
+    outline-color: darkturquoise;
+    outline-style: solid;
+    background-color: rgb(122, 140, 161);
+}
 .selected {
     outline-width: 10px;
     outline-color: gold;
