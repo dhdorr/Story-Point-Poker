@@ -169,7 +169,6 @@ func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request)
 			cards = append(cards, Card{Value: i + 1})
 		}
 	} else if preset == "fib" {
-		// fib := []int{1, 2, 3, 5, 8, 13, 21, 34}
 		prev := 1
 		val := 1
 		for i := 0; i < num; i++ {
