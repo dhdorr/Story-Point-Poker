@@ -18,10 +18,6 @@ function choose(card) {
     });
     card.classList.add("awaiting-selected");
     selected_card_value = card.getAttribute("value");
-    return;
-    card.classList.add("selected");
-    selected_card_value = card.getAttribute("value");
-    console.log("testing value: ", selected_card_value);
 }
 
 document.addEventListener("fx:config", (evt) => {
@@ -58,7 +54,7 @@ function handleRequest(evt) {
         passcode = evt.detail.cfg.body.get("passcode");
     }
 
-    if (evt.detail.cfg.action == "/choose") {
+    if (evt.detail.cfg.action == "/choose" || evt.detail.cfg.action == "/playerBox") {
         evt.detail.cfg.headers.sessionID = sessionID
         evt.detail.cfg.headers.passcode = passcode
         evt.detail.cfg.headers.username = username;
@@ -99,10 +95,8 @@ function udpateTimer() {
     let timeLeft = 1000; // 100 seconds
     const countdownInterval = setInterval(() => {
         timeLeft--;
-        // let time_mins = timeLeft / 60;
         let pb = document.getElementById("timer")
         pb.value = timeLeft
-        // console.log(`Time left: ${timeLeft} seconds`);
 
         if (timeLeft <= 0) {
             clearInterval(countdownInterval);
@@ -111,4 +105,44 @@ function udpateTimer() {
     }, 100); // Update every second
 }
 
+
+// fixi polling extension
+document.addEventListener("fx:init", (evt)=>{
+    let elt = evt.target
+    if (elt.matches("[ext-fx-poll-interval]")){
+      // wait for the non-bubbling fx:inited event on the element so the __fixi property is available
+      elt.addEventListener("fx:inited", ()=>{
+          // squirrel away in case we want to call clearInterval() later
+          elt.__fixi.pollInterval = setInterval(()=>{
+              elt.dispatchEvent(new CustomEvent("poll"))
+          }, parseInt(elt.getAttribute("ext-fx-poll-interval")))
+      })
+    }
+  })
+
+
+async function pollServer() {
+    const pollInterval = setInterval(() => {
+        getData();
+        console.log("server polled");
+    }, 1000); // Update every second
+}
+
+async function getData() {
+    const url = "localhost:80/playerBox";
+    try {
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error(`Response status: ${response.status}`);
+      }
+  
+      const json = await response.json();
+      console.log(json);
+    } catch (error) {
+      console.error(error.message);
+    }
+  }
+  
+
 udpateTimer();
+// await pollServer();

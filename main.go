@@ -7,6 +7,13 @@ import (
 	"strconv"
 )
 
+type PlayerBox struct {
+	Name    string
+	Value   int
+	HasVal  bool
+	IsAdmin bool
+}
+
 type Card struct {
 	Value int
 }
@@ -17,6 +24,7 @@ type Deck struct {
 
 type Player struct {
 	Username string
+	isAdmin  bool
 }
 
 type Table_Template struct {
@@ -94,7 +102,7 @@ func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	tmp := poker.active_sessions[session_id]
-	tmp.Players = append(tmp.Players, Player{Username: username})
+	tmp.Players = append(tmp.Players, Player{Username: username, isAdmin: false})
 	poker.active_sessions[session_id] = tmp
 
 	fmt.Println(poker.active_sessions[session_id].Players)
@@ -179,7 +187,7 @@ func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request)
 		Cards: cards,
 	}
 
-	p := []Player{{Username: username}}
+	p := []Player{{Username: username, isAdmin: true}}
 
 	poker.active_sessions[session_id] = *NewSession(session_id, passcode, p, false, data)
 
@@ -200,7 +208,6 @@ func (poker *Poker_Tables) handle_choose(w http.ResponseWriter, r *http.Request)
 	fmt.Println("sessionID: ", session_id)
 
 	tmp := poker.active_sessions[session_id]
-	// tmp.Players = append(tmp.Players, Player{Username: username})
 	tmp.Choices[username] = v
 	poker.active_sessions[session_id] = tmp
 
@@ -213,6 +220,32 @@ func (poker *Poker_Tables) handle_choose(w http.ResponseWriter, r *http.Request)
 	data := cardSelected{Value: v}
 	t.Execute(w, data)
 
+}
+
+func (poker *Poker_Tables) handle_player_box(w http.ResponseWriter, r *http.Request) {
+	session_id := r.Header.Get("sessionID")
+	inc_username := r.Header.Get("username")
+
+	tmp := poker.active_sessions[session_id]
+	pb_arr := make([]PlayerBox, 0)
+
+	show_vals := false
+
+	for _, v := range tmp.Players {
+		cv, ok := tmp.Choices[v.Username]
+		if !ok {
+			cv = -1
+		}
+		if v.Username == inc_username {
+			show_vals = v.isAdmin
+		}
+		pb := PlayerBox{Name: v.Username, Value: cv, HasVal: ok, IsAdmin: show_vals}
+		pb_arr = append(pb_arr, pb)
+	}
+
+	t, _ := template.ParseFiles("./templates/player-box.html")
+
+	t.Execute(w, pb_arr)
 }
 
 func main() {
@@ -229,7 +262,7 @@ func main() {
 		},
 	}
 	tmp := make(map[string]int)
-	poker_tables.active_sessions["abc123"] = Session{ID: "abc123", Players: []Player{Player{Username: "test"}}, CurrentDeck: data, Passcode: "test", Closed: false, Choices: tmp}
+	poker_tables.active_sessions["abc123"] = Session{ID: "abc123", Players: []Player{{Username: "test", isAdmin: true}}, CurrentDeck: data, Passcode: "test", Closed: false, Choices: tmp}
 	// End Test
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
@@ -245,6 +278,8 @@ func main() {
 	http.HandleFunc("POST /create", poker_tables.handle_create)
 
 	http.HandleFunc("POST /choose", poker_tables.handle_choose)
+
+	http.HandleFunc("GET /playerBox", poker_tables.handle_player_box)
 
 	fs := http.FileServer(http.Dir("static/"))
 	http.Handle("/static/", http.StripPrefix("/static/", fs))

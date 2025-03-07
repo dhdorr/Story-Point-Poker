@@ -1,6 +1,6 @@
 
 <div class="outer-card-wrapper" id="card-wrapper">
-    <div class="players-box">
+    <div class="players-box" id="playerBox" fx-action="/playerBox" fx-trigger="poll" fx-method="get" ext-fx-poll-interval="3000" fx-swap="innerHTML" fx-target="#playerBox">
         <h2>Players</h2>
         <ul>
             {{range .Players}}

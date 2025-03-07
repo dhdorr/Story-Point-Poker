@@ -1,0 +1,10 @@
+<h2>Players</h2>
+<ul>
+    {{range .}}
+        {{if .HasVal}}
+            <li>{{.Name}} <span>{{if .IsAdmin}} {{.Value}} {{else}} ✅ {{end}}</span></li>
+        {{else}}
+            <li>{{.Name}} <span>🤔</span></li>
+        {{end}}
+    {{end}}
+</ul>
