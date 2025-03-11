@@ -5,8 +5,13 @@ let selected_card_value = -1;
 let sessionID = "";
 let passcode = "";
 
+let round_Over = false;
+
 function choose(card) {
     console.log("clicked...");
+    if (round_Over) {
+        return;
+    }
     let cards = document.querySelectorAll(".card");
     cards.forEach(c => {
         if (c.classList.contains("selected")) {
@@ -31,7 +36,7 @@ function logEvt(evt) {
 }
 
 function handleErrorResponse(evt) {
-    console.log("is admin: ", evt.detail.cfg.response.headers.get("isadmin"));
+    console.log("is admin: ", evt.detail.cfg.response);
     // console.log("is admin? ", evt.detail.cfg.response.headers.forEach((value, key) => {console.log(`${key}: ${value}`);}));
     let error_arr = [401, 404];
     if (error_arr.includes(evt.detail.cfg.response.status)) {
@@ -55,6 +60,15 @@ function handleRequest(evt) {
     }
 
     if (evt.detail.cfg.action == "/choose" || evt.detail.cfg.action == "/playerBox") {
+        if (round_Over) {
+            evt.detail.cfg.abort();
+        }
+        evt.detail.cfg.headers.sessionID = sessionID
+        evt.detail.cfg.headers.passcode = passcode
+        evt.detail.cfg.headers.username = username;
+    }
+
+    if (evt.detail.cfg.action == "/results") {
         evt.detail.cfg.headers.sessionID = sessionID
         evt.detail.cfg.headers.passcode = passcode
         evt.detail.cfg.headers.username = username;
@@ -92,17 +106,24 @@ function updateUsername(evt) {
 }
 
 function udpateTimer() {
-    let timeLeft = 1000; // 100 seconds
+    // let timeLeft = 1000; // 100 seconds
     const countdownInterval = setInterval(() => {
-        timeLeft--;
+        // timeLeft--;
         let pb = document.getElementById("timer")
-        pb.value = timeLeft
+        if (pb == null) {
+            return
+        }
+        // pb.value = timeLeft
+        let tmp = pb.value;
+        tmp-= 0.1;
+        pb.value = tmp;
 
-        if (timeLeft <= 0) {
+        if (pb.value <= 0) {
+            round_Over = true;
             clearInterval(countdownInterval);
             console.log("Time's up!");
         }
-    }, 100); // Update every second
+    }, 1000 / 10); // Update every second
 }
 
 
@@ -115,33 +136,36 @@ document.addEventListener("fx:init", (evt)=>{
           // squirrel away in case we want to call clearInterval() later
           elt.__fixi.pollInterval = setInterval(()=>{
               elt.dispatchEvent(new CustomEvent("poll"))
+              if (round_Over) {
+                clearInterval(elt.__fixi.pollInterval);
+              }
           }, parseInt(elt.getAttribute("ext-fx-poll-interval")))
       })
     }
   })
 
 
-async function pollServer() {
-    const pollInterval = setInterval(() => {
-        getData();
-        console.log("server polled");
-    }, 1000); // Update every second
-}
+// async function pollServer() {
+//     const pollInterval = setInterval(() => {
+//         getData();
+//         console.log("server polled");
+//     }, 1000); // Update every second
+// }
 
-async function getData() {
-    const url = "localhost:80/playerBox";
-    try {
-      const response = await fetch(url);
-      if (!response.ok) {
-        throw new Error(`Response status: ${response.status}`);
-      }
+// async function getData() {
+//     const url = "localhost:80/playerBox";
+//     try {
+//       const response = await fetch(url);
+//       if (!response.ok) {
+//         throw new Error(`Response status: ${response.status}`);
+//       }
   
-      const json = await response.json();
-      console.log(json);
-    } catch (error) {
-      console.error(error.message);
-    }
-  }
+//       const json = await response.json();
+//       console.log(json);
+//     } catch (error) {
+//       console.error(error.message);
+//     }
+//   }
   
 
 udpateTimer();

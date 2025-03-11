@@ -1,8 +1,16 @@
 <div class="results-page-wrapper">
     <h2>Results</h2>
-    {{range .Cards}}
-        <div>
-            <h4>{{.Value}}</h4>
+    <div class="winning-card-wrapper">
+        <div class="winner">
+            <h2>{{.Winner}}</h2>
         </div>
-    {{end}}
+    </div>
+    <div class="everyone-else-wrapper">
+        {{range .Cards}}
+            <div>
+                <h4>{{.Value}}</h4>
+                <span>({{.VoteCount}} / {{.PlayerCount}})</span>
+            </div>
+        {{end}}
+    </div>
 </div>

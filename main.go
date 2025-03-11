@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"net/http"
 	"strconv"
+	"time"
 )
 
 type PlayerBox struct {
@@ -32,10 +33,18 @@ type Table_Template struct {
 	Skin      string
 	TextColor string
 	Players   []Player
+	TimeLimit int
+}
+
+type Res_Card struct {
+	Value       int
+	VoteCount   int
+	PlayerCount int
 }
 
 type Results_Template struct {
-	Cards []Card
+	Cards  []Res_Card
+	Winner int
 }
 
 type Session struct {
@@ -45,11 +54,12 @@ type Session struct {
 	Passcode    string
 	Closed      bool
 	Choices     map[string]int
+	TimeLimit   int
 }
 
-func NewSession(id, passcode string, players []Player, closed bool, deck Deck) *Session {
+func NewSession(id, passcode string, players []Player, closed bool, deck Deck, time_limit int) *Session {
 	tmp := make(map[string]int)
-	return &Session{ID: id, Passcode: passcode, Players: players, Closed: closed, CurrentDeck: deck, Choices: tmp}
+	return &Session{ID: id, Passcode: passcode, Players: players, Closed: closed, CurrentDeck: deck, Choices: tmp, TimeLimit: time_limit}
 }
 
 type Poker_Tables struct {
@@ -62,19 +72,19 @@ func renderTemplate(w http.ResponseWriter, tmpl string, ts *Table_Template) {
 	t.Execute(w, ts)
 }
 
-func (poker *Poker_Tables) handle_test(w http.ResponseWriter, _ *http.Request) {
-	data := Deck{
-		Cards: []Card{
-			{Value: 1},
-			{Value: 2},
-			{Value: 3},
-			{Value: 4},
-			{Value: 5},
-		},
-	}
-	ts := Table_Template{Deck: data.Cards, Skin: "grey", TextColor: "black"}
-	renderTemplate(w, "card", &ts)
-}
+// func (poker *Poker_Tables) handle_test(w http.ResponseWriter, _ *http.Request) {
+// 	data := Deck{
+// 		Cards: []Card{
+// 			{Value: 1},
+// 			{Value: 2},
+// 			{Value: 3},
+// 			{Value: 4},
+// 			{Value: 5},
+// 		},
+// 	}
+// 	ts := Table_Template{Deck: data.Cards, Skin: "grey", TextColor: "black"}
+// 	renderTemplate(w, "card", &ts)
+// }
 
 func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
 	session_id := r.FormValue("sessionID")
@@ -108,20 +118,54 @@ func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(poker.active_sessions[session_id].Players)
 
 	// renderTemplate(w, "test2", nil)
-	ts := Table_Template{Deck: val.CurrentDeck.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players}
+	ts := Table_Template{Deck: val.CurrentDeck.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players, TimeLimit: tmp.TimeLimit}
 	renderTemplate(w, "card", &ts)
 }
 
 func (poker *Poker_Tables) handle_results(w http.ResponseWriter, r *http.Request) {
-	data := Results_Template{
-		Cards: []Card{
-			{Value: 1},
-			{Value: 2},
-			{Value: 3},
-			{Value: 4},
-			{Value: 5},
-		},
+	session_id := r.Header.Get("sessionID")
+
+	tmp := poker.active_sessions[session_id]
+
+	res_choices := make(map[int]int)
+	for _, b := range tmp.Choices {
+		check, ok := res_choices[b]
+		if !ok {
+			res_choices[b] = 1
+		} else {
+			check += 1
+			res_choices[b] = check
+		}
 	}
+
+	prev_high := 0
+	high_idx := 0
+	for k, v := range res_choices {
+		if v > prev_high {
+			prev_high = v
+			high_idx = k
+		}
+	}
+
+	data := Results_Template{
+		Cards:  []Res_Card{},
+		Winner: high_idx,
+	}
+	for _, c := range tmp.CurrentDeck.Cards {
+		new_res_card := Res_Card{Value: c.Value, VoteCount: res_choices[c.Value], PlayerCount: len(tmp.Players)}
+		data.Cards = append(data.Cards, new_res_card)
+	}
+	fmt.Println(data)
+
+	// data := Results_Template{
+	// 	Cards: []Res_Card{
+	// 		{Value: 1},
+	// 		{Value: 2},
+	// 		{Value: 3},
+	// 		{Value: 4},
+	// 		{Value: 5},
+	// 	},
+	// }
 	t, _ := template.ParseFiles("./templates/results.html")
 	t.Execute(w, data)
 }
@@ -182,19 +226,40 @@ func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
+	tl_val, err := strconv.Atoi(time_limit)
+	if err != nil {
+		fmt.Println(err)
+		tl_val = 15
+	}
+	// infinity option
+	if tl_val == -1 {
+		tl_val = 600
+	}
+
+	fmt.Printf("Time Limit: %v \n", tl_val)
+
+	timer1 := time.NewTimer(time.Duration(tl_val) * time.Second)
+	go func() {
+		<-timer1.C
+		fmt.Println("Session Over: Time Expired...")
+		tmp := poker.active_sessions[session_id]
+		tmp.Closed = true
+		poker.active_sessions[session_id] = tmp
+	}()
+
 	data := Deck{
 		Cards: cards,
 	}
 
 	p := []Player{{Username: username, isAdmin: true}}
 
-	poker.active_sessions[session_id] = *NewSession(session_id, passcode, p, false, data)
+	poker.active_sessions[session_id] = *NewSession(session_id, passcode, p, false, data, tl_val)
 
 	tmp := poker.active_sessions[session_id]
 
 	fmt.Println(poker.active_sessions[session_id].Players)
 
-	ts := Table_Template{Deck: data.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players}
+	ts := Table_Template{Deck: data.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players, TimeLimit: tmp.TimeLimit}
 	renderTemplate(w, "card-admin", &ts)
 }
 
@@ -207,6 +272,10 @@ func (poker *Poker_Tables) handle_choose(w http.ResponseWriter, r *http.Request)
 	fmt.Println("sessionID: ", session_id)
 
 	tmp := poker.active_sessions[session_id]
+	if tmp.Closed {
+		fmt.Println("Selection Cancelled, round is over")
+		return
+	}
 	tmp.Choices[username] = v
 	poker.active_sessions[session_id] = tmp
 
@@ -235,6 +304,7 @@ func (poker *Poker_Tables) handle_player_box(w http.ResponseWriter, r *http.Requ
 		if !ok {
 			cv = -1
 		}
+		// shows the admin everyone's selection
 		if v.Username == inc_username {
 			show_vals = v.isAdmin
 		}
@@ -261,14 +331,14 @@ func main() {
 		},
 	}
 	tmp := make(map[string]int)
-	poker_tables.active_sessions["abc123"] = Session{ID: "abc123", Players: []Player{{Username: "test", isAdmin: true}}, CurrentDeck: data, Passcode: "test", Closed: false, Choices: tmp}
+	poker_tables.active_sessions["abc123"] = Session{ID: "abc123", Players: []Player{{Username: "test", isAdmin: true}}, CurrentDeck: data, Passcode: "test", Closed: false, Choices: tmp, TimeLimit: 60}
 	// End Test
 
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, "index2.html")
 	})
 
-	http.HandleFunc("GET /test", poker_tables.handle_test)
+	// http.HandleFunc("GET /test", poker_tables.handle_test)
 
 	http.HandleFunc("GET /results", poker_tables.handle_results)
 

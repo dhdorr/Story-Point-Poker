@@ -324,3 +324,19 @@ input {
 .results-page-wrapper {
     grid-area: mid;
 }
+
+.everyone-else-wrapper {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+}
+
+.round-timer-wrapper {
+    position: absolute;
+    top: 75vh;
+    width: 60vw;
+}
+
+.round-timer {
+    width: 100%;
+}
