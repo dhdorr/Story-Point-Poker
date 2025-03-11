@@ -29,11 +29,12 @@ type Player struct {
 }
 
 type Table_Template struct {
-	Deck      []Card
-	Skin      string
-	TextColor string
-	Players   []Player
-	TimeLimit int
+	Deck          []Card
+	Skin          string
+	TextColor     string
+	Players       []Player
+	TimeLimit     int
+	TimeRemaining int
 }
 
 type Res_Card struct {
@@ -55,11 +56,12 @@ type Session struct {
 	Closed      bool
 	Choices     map[string]int
 	TimeLimit   int
+	StartTime   time.Time
 }
 
 func NewSession(id, passcode string, players []Player, closed bool, deck Deck, time_limit int) *Session {
 	tmp := make(map[string]int)
-	return &Session{ID: id, Passcode: passcode, Players: players, Closed: closed, CurrentDeck: deck, Choices: tmp, TimeLimit: time_limit}
+	return &Session{ID: id, Passcode: passcode, Players: players, Closed: closed, CurrentDeck: deck, Choices: tmp, TimeLimit: time_limit, StartTime: time.Now()}
 }
 
 type Poker_Tables struct {
@@ -118,7 +120,12 @@ func (poker *Poker_Tables) handle_join(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(poker.active_sessions[session_id].Players)
 
 	// renderTemplate(w, "test2", nil)
-	ts := Table_Template{Deck: val.CurrentDeck.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players, TimeLimit: tmp.TimeLimit}
+	tr := time.Since(tmp.StartTime)
+	fmt.Printf("tr: %v \n", tr)
+	tr_1 := 30 - int(tr.Seconds())
+	fmt.Printf("tr 1: %v \n\n", tr_1)
+
+	ts := Table_Template{Deck: val.CurrentDeck.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players, TimeLimit: tmp.TimeLimit, TimeRemaining: tr_1}
 	renderTemplate(w, "card", &ts)
 }
 
@@ -259,7 +266,7 @@ func (poker *Poker_Tables) handle_create(w http.ResponseWriter, r *http.Request)
 
 	fmt.Println(poker.active_sessions[session_id].Players)
 
-	ts := Table_Template{Deck: data.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players, TimeLimit: tmp.TimeLimit}
+	ts := Table_Template{Deck: data.Cards, Skin: skin, TextColor: text_color, Players: tmp.Players, TimeLimit: tmp.TimeLimit, TimeRemaining: tmp.TimeLimit}
 	renderTemplate(w, "card-admin", &ts)
 }
 

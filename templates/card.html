@@ -41,5 +41,10 @@
 </div>
 <div class="round-timer-wrapper">
     <label for="timer">Round Timer: </label>
-    <progress class="round-timer" id="timer" name="timer" class="progressTimer" max="{{.TimeLimit}}" value="{{.TimeLimit}}"></progress>
+    <progress class="round-timer" id="timer" name="timer" class="progressTimer" max="{{.TimeLimit}}" value="{{.TimeRemaining}}"></progress>
+</div>
+<div class="results-btn-wrapper" style="display: none;">
+    <div class="results-btn" id="resultsBtn" fx-action="/results" fx-method="get" fx-target="#card-wrapper" fx-swap="innerHTML" form name="value" value="3">
+        <h2>Results</h2>
+    </div>
 </div>

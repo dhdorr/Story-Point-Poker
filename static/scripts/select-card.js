@@ -36,7 +36,7 @@ function logEvt(evt) {
 }
 
 function handleErrorResponse(evt) {
-    console.log("is admin: ", evt.detail.cfg.response);
+    console.log("is admin: ", evt.detail.cfg);
     // console.log("is admin? ", evt.detail.cfg.response.headers.forEach((value, key) => {console.log(`${key}: ${value}`);}));
     let error_arr = [401, 404];
     if (error_arr.includes(evt.detail.cfg.response.status)) {
@@ -45,6 +45,11 @@ function handleErrorResponse(evt) {
         let error_dialog = document.getElementById("errorDialog");
         evt.detail.cfg.target = error_dialog;
         evt.detail.cfg.swap = 'innerHTML';
+    }
+    if (evt.detail.cfg.action == "/results") {
+        let tg = document.getElementById("card-wrapper")
+        evt.detail.cfg.target = tg
+        evt.detail.cfg.swap = 'innerHTML'
     }
 }
 
@@ -126,18 +131,31 @@ function udpateTimer() {
     }, 1000 / 10); // Update every second
 }
 
+function getResults() {
+    let tmp = 1
+    const countdownInterval = setInterval(() => {
+        tmp -= 1;
+
+        if (tmp < 0) {
+            clearInterval(countdownInterval);
+            getData();
+        }
+    }, 1000); // Update every second
+}
 
 // fixi polling extension
 document.addEventListener("fx:init", (evt)=>{
     let elt = evt.target
+    console.log("element? ", elt);
     if (elt.matches("[ext-fx-poll-interval]")){
       // wait for the non-bubbling fx:inited event on the element so the __fixi property is available
       elt.addEventListener("fx:inited", ()=>{
           // squirrel away in case we want to call clearInterval() later
           elt.__fixi.pollInterval = setInterval(()=>{
               elt.dispatchEvent(new CustomEvent("poll"))
-              if (round_Over) {
+              if (round_Over && elt.id == "playerBox") {
                 clearInterval(elt.__fixi.pollInterval);
+                getResults();
               }
           }, parseInt(elt.getAttribute("ext-fx-poll-interval")))
       })
@@ -152,20 +170,10 @@ document.addEventListener("fx:init", (evt)=>{
 //     }, 1000); // Update every second
 // }
 
-// async function getData() {
-//     const url = "localhost:80/playerBox";
-//     try {
-//       const response = await fetch(url);
-//       if (!response.ok) {
-//         throw new Error(`Response status: ${response.status}`);
-//       }
-  
-//       const json = await response.json();
-//       console.log(json);
-//     } catch (error) {
-//       console.error(error.message);
-//     }
-//   }
+function getData() {
+    let rb = document.getElementById("resultsBtn");
+    rb.click();
+  }
   
 
 udpateTimer();
