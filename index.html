@@ -6,10 +6,21 @@
     <title>Story Point Poker 2</title>
 
     <link rel="stylesheet" href="/static/styles/style.css">
+    <script src="/static/scripts/fixi-0.6.5.js"></script>
 </head>
 <body>
-    <h1>Home Page!</h1>
-    <p>This page will contain the Join and Create buttons, allowing users to log in and create a new story point poker table.</p>
-    <a href="/pages/poker-table.html">go to poker table --> </a>
+    <div class="home-page-wrapper">
+        <nav class="top-nav">
+            <h2>Home Page!</h2>
+        </nav>
+        <div class="home-content-wrapper" id="homeContentWrapper">
+            <button class="submit-btn" fx-action="static/pages/join-form.html" fx-method="get" fx-trigger="click" fx-target="#homeContentWrapper" fx-swap="innerHTML">Join Table</button>
+            <p>or</p>
+            <button class="submit-btn">Create Table</button>
+        </div>
+        <footer class="bottom-footer">
+            <p>This page will contain the Join and Create buttons, allowing users to log in and create a new story point poker table.</p>
+        </footer>
+    </div>
 </body>
 </html>
