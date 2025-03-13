@@ -1,0 +1,66 @@
+<div class="create-form-wrapper">
+    <form action="/createTable" method="post" target="_self" class="create-form">
+        <label for="username">Username: </label>
+        <input type="text" name="username" id="username">
+
+        <label for="tableID">TableID: </label>
+        <input type="text" name="tableID" id="tableID" required>
+
+        <label for="passcode">Passcode: </label>
+        <input type="text" name="passcode" id="passcode" required>
+
+        <fieldset class="create-fieldset">
+            <legend>Select Card Layout:</legend>
+            <div>
+                <input type="radio" name="cardLayout" id="cardLayout1" value="seq" required>
+                <label for="cardLayout1">Sequential</label>
+
+                <input type="radio" name="cardLayout" id="cardLayout2" value="fib">
+                <label for="cardLayout2">Fibonacci</label>
+            </div>
+        </fieldset>
+
+        <label for="numCards">Number of Cards</label>
+        <select name="numCards" id="numCards" required>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+        </select>
+
+        <label for="numRounds">Number of Rounds</label>
+        <select name="numRounds" id="numRounds" required>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+        </select>
+
+        <label for="roundTimeLimit">Round Time</label>
+        <select name="roundTimeLimit" id="roundTimeLimit" required>
+            <option value="15">15</option>
+            <option value="30">30</option>
+            <option value="45">45</option>
+            <option value="60">60</option>
+            <option value="75">75</option>
+            <option value="90">90</option>
+            <option value="120">120</option>
+        </select>
+
+        <label for="playerMax">Max Player Count</label>
+        <input type="number" name="playerMax" id="playerMax" value="10" required>
+
+        <div class="form-btns-wrapper">
+            <a href="/">
+                <button type="button" class="form-btn cancel">Cancel</button>
+            </a>
+            <button type="submit" class="form-btn">Join</button>
+        </div>
+    </form>
+</div>

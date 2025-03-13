@@ -14,9 +14,13 @@
             <h2>Home Page!</h2>
         </nav>
         <div class="home-content-wrapper" id="homeContentWrapper">
-            <button class="submit-btn" fx-action="static/pages/join-form.html" fx-method="get" fx-trigger="click" fx-target="#homeContentWrapper" fx-swap="innerHTML">Join Table</button>
-            <p>or</p>
-            <button class="submit-btn">Create Table</button>
+            <div class="home-menu-wrapper" id="homeMenuWrapper">
+                <div class="home-menu">
+                    <button class="form-btn" fx-action="static/pages/join-form.html" fx-method="get" fx-trigger="click" fx-target="#homeMenuWrapper" fx-swap="innerHTML">Join Table</button>
+                    <p>or</p>
+                    <button class="form-btn" fx-action="static/pages/create-form.html" fx-method="get" fx-trigger="click" fx-target="#homeMenuWrapper" fx-swap="innerHTML">Create Table</button>
+                </div>
+            </div>
         </div>
         <footer class="bottom-footer">
             <p>This page will contain the Join and Create buttons, allowing users to log in and create a new story point poker table.</p>
