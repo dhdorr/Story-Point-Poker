@@ -1,7 +1,7 @@
 package main
 
 import (
-	"dhdorr/story-point-poker/handlers"
+	"dhdorr/story-point-poker/managers"
 	"fmt"
 	"log"
 	"net/http"
@@ -9,6 +9,9 @@ import (
 
 func main() {
 	fmt.Println("Welcome to Story Point Poker 2")
+
+	// Global table manager that keeps every active table session in memory
+	tm := managers.Table_Manager{Table_Sessions: nil}
 
 	http.Handle("/", http.FileServer(http.Dir(".")))
 
@@ -20,9 +23,10 @@ func main() {
 	})
 
 	// Custom API Requests
-	http.HandleFunc("POST /joinTable", handlers.HandleJoin)
+	http.HandleFunc("POST /joinTable", tm.HandleJoin)
 
-	http.HandleFunc("POST /createTable", handlers.HandleCreate)
+	http.HandleFunc("POST /createTable", tm.HandleCreate)
+	// *******************
 
 	// serve css and js, from html pages
 	fs_static := http.FileServer(http.Dir("static"))

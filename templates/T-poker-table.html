@@ -15,6 +15,12 @@
         </nav>
         <div class="home-content-wrapper" id="homeContentWrapper">
             <h1>Poker Table Page!</h1>
+            <h2>{{.Table_ID}}</h2>
+            <div>
+                {{range .Players}}
+                <div>{{.Username}}</div>
+                {{end}}
+            </div>
             
         </div>
         <footer class="bottom-footer">

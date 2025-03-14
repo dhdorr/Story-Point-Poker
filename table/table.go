@@ -19,18 +19,20 @@ func NewTableSettings(card_layout string, num_cards, num_rounds, round_time_limi
 }
 
 type Table_Session struct {
-	Table_ID string
-	Passcode string
-	Settings Table_Settings
-	Players  []player.Player
-}
-
-func NewTableSession(table_id, passcode, card_layout, username string, num_cards, num_rounds, round_time_limit, player_max int) *Table_Session {
-	return &Table_Session{Table_ID: table_id, Passcode: passcode, Settings: *NewTableSettings(card_layout, num_cards, num_rounds, round_time_limit, player_max), Players: *player.NewPlayerArr(player_max, *player.NewPlayer(username))}
+	Table_ID        string
+	Passcode        string
+	Settings        Table_Settings
+	Players         []player.Player
+	Rounds          []Poker_Round
+	Active_Round_ID int
 }
 
 func NewTableSessionConstructed(tsc Table_Session_Constructor) *Table_Session {
-	return &Table_Session{Table_ID: tsc.id, Passcode: tsc.pc, Settings: *NewTableSettings(tsc.cl, tsc.nc, tsc.nr, tsc.tl, tsc.pm), Players: *player.NewPlayerArr(tsc.pm, *player.NewPlayer(tsc.un))}
+	new_table_settings := NewTableSettings(tsc.cl, tsc.nc, tsc.nr, tsc.tl, tsc.pm)
+	new_player_arr := player.NewPlayerArr(tsc.pm, *player.NewPlayer(tsc.un))
+	new_round_arr := NewPokerRoundArr(tsc.nr, tsc.pm)
+
+	return &Table_Session{Table_ID: tsc.id, Passcode: tsc.pc, Settings: *new_table_settings, Players: *new_player_arr, Rounds: *new_round_arr, Active_Round_ID: tsc.ar}
 }
 
 type Table_Session_Constructor struct {
@@ -42,6 +44,7 @@ type Table_Session_Constructor struct {
 	nr int
 	tl int
 	pm int
+	ar int
 }
 
 func GenerateTableSession(form_values url.Values) (*Table_Session, error) {
@@ -74,6 +77,8 @@ func GenerateTableSession(form_values url.Values) (*Table_Session, error) {
 		return nil, err
 	}
 	tsc.pm = pm
+
+	tsc.ar = -1
 
 	return NewTableSessionConstructed(tsc), nil
 }
