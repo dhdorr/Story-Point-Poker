@@ -37,10 +37,14 @@ type Table_Session struct {
 
 func NewTableSessionConstructed(tsc Table_Session_Constructor) *Table_Session {
 	new_table_settings := NewTableSettings(tsc.CL, tsc.NC, tsc.NR, tsc.TL, tsc.PM)
-	new_player_arr := player.NewPlayerArr(tsc.PM, *player.NewPlayer(tsc.UN))
+	new_player_arr := player.NewPlayerArr(tsc.PM)
 	new_round_arr := NewPokerRoundArr(tsc.NR, tsc.PM)
 
 	return &Table_Session{Table_ID: tsc.ID, Passcode: tsc.PC, Settings: *new_table_settings, Players: *new_player_arr, Rounds: *new_round_arr, Active_Round_ID: tsc.AR}
+}
+
+func (ts *Table_Session) AddPlayerToTableSession(un string) {
+	ts.Players = append(ts.Players, *player.NewPlayer(un))
 }
 
 type Table_Session_Constructor struct {
@@ -54,39 +58,3 @@ type Table_Session_Constructor struct {
 	PM int
 	AR int
 }
-
-// func GenerateTableSession(form_values url.Values) (*Table_Session, error) {
-// 	tsc := Table_Session_Constructor{}
-// 	tsc.ID = form_values.Get("tableID")
-// 	tsc.PC = form_values.Get("passcode")
-// 	tsc.CL = form_values.Get("cardLayout")
-// 	tsc.UN = form_values.Get("username")
-
-// 	nc, err := strconv.Atoi(form_values.Get("numCards"))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	tsc.NC = nc
-
-// 	nr, err := strconv.Atoi(form_values.Get("numRounds"))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	tsc.NR = nr
-
-// 	tl, err := strconv.Atoi(form_values.Get("roundTimeLimit"))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	tsc.TL = tl
-
-// 	pm, err := strconv.Atoi(form_values.Get("playerMax"))
-// 	if err != nil {
-// 		return nil, err
-// 	}
-// 	tsc.PM = pm
-
-// 	tsc.AR = -1
-
-// 	return NewTableSessionConstructed(tsc), nil
-// }

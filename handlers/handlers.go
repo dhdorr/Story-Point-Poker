@@ -1,28 +1,14 @@
 package handlers
 
 import (
-	"dhdorr/story-point-poker/player"
 	"dhdorr/story-point-poker/table"
 	"dhdorr/story-point-poker/templates"
-	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
 	"net/url"
 	"strconv"
 )
-
-func HandleJoin(w http.ResponseWriter, r *http.Request, tsm *table.Table_Map) (*table.Table_Session, error) {
-	r.ParseForm()
-	fmt.Printf("joining table: %v \n", r.Form)
-
-	a, err := AddPlayerToTableSession(r.Form, tsm)
-	if err != nil {
-		return nil, err
-	}
-
-	return a, nil
-}
 
 func HandleCreate(w http.ResponseWriter, r *http.Request) (*table.Table_Session, error) {
 	r.ParseForm()
@@ -31,6 +17,9 @@ func HandleCreate(w http.ResponseWriter, r *http.Request) (*table.Table_Session,
 	if err != nil {
 		return nil, err
 	}
+
+	// add player to new session, after it has been created
+	ts.AddPlayerToTableSession(r.FormValue("username"))
 
 	fmt.Printf("session made: %v \n", ts)
 	return ts, nil
@@ -75,18 +64,4 @@ func GenerateTableSession(form_values url.Values) (*table.Table_Session, error) 
 	tsc.AR = -1
 
 	return table.NewTableSessionConstructed(tsc), nil
-}
-
-func AddPlayerToTableSession(form_values url.Values, table_sessions *table.Table_Map) (*table.Table_Session, error) {
-	t_id := table.Table_Session_Identifiers{Table_ID: form_values.Get("tableID"), Passcode: form_values.Get("passcode")}
-
-	tsm := *table_sessions
-	a, ok := tsm[t_id]
-	if !ok {
-		return nil, errors.New("table session does not exist")
-	}
-
-	a.Players = append(a.Players, *player.NewPlayer(form_values.Get("username")))
-
-	return &a, nil
 }

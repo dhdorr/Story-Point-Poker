@@ -13,8 +13,7 @@ func NewPlayer(username string) *Player {
 	return &Player{Username: username, GUID: GeneratePlayerGUID()}
 }
 
-func NewPlayerArr(player_max int, player Player) *[]Player {
+func NewPlayerArr(player_max int) *[]Player {
 	arr := make([]Player, 0, player_max)
-	arr = append(arr, player)
 	return &arr
 }
