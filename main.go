@@ -2,6 +2,7 @@ package main
 
 import (
 	"dhdorr/story-point-poker/managers"
+	"dhdorr/story-point-poker/table"
 	"fmt"
 	"log"
 	"net/http"
@@ -11,7 +12,11 @@ func main() {
 	fmt.Println("Welcome to Story Point Poker 2")
 
 	// Global table manager that keeps every active table session in memory
-	tm := managers.Table_Manager{Table_Sessions: nil}
+	tm := managers.Table_Manager{Table_Sessions_M: make(map[table.Table_Session_Identifiers]table.Table_Session)}
+
+	// Test
+	tm.HandleTest()
+	tm.PrintTables()
 
 	http.Handle("/", http.FileServer(http.Dir(".")))
 
