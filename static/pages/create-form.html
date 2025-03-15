@@ -1,13 +1,13 @@
 <div class="create-form-wrapper">
     <form action="/createTable" method="post" target="_self" class="create-form">
         <label for="username">Username: </label>
-        <input type="text" name="username" id="username">
+        <input type="text" name="username" id="username" onchange="updateData(this);">
 
         <label for="tableID">TableID: </label>
-        <input type="text" name="tableID" id="tableID" required>
+        <input type="text" name="tableID" id="tableID" onchange="updateData(this);" required>
 
         <label for="passcode">Passcode: </label>
-        <input type="text" name="passcode" id="passcode" required>
+        <input type="text" name="passcode" id="passcode" onchange="updateData(this);" required>
 
         <fieldset class="create-fieldset">
             <legend>Select Card Layout:</legend>
@@ -60,7 +60,7 @@
             <a href="/">
                 <button type="button" class="form-btn cancel">Cancel</button>
             </a>
-            <button type="submit" class="form-btn">Join</button>
+            <button type="submit" class="form-btn" onclick="saveData();">Create</button>
         </div>
     </form>
 </div>

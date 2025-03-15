@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Point Poker 2 - waiting</title>
+
+    <script src="/static/scripts/fixi-0.6.5.js"></script>
+</head>
+<body>
+    <div class="home-page-wrapper">
+        <nav class="top-nav">
+            <h2>Poker Table! - {{.Table_ID}}</h2>
+        </nav>
+        <div class="home-content-wrapper" id="homeContentWrapper">
+            <div>
+                <h1>Waiting for players...</h1>
+            </div>
+            <div>
+                <h3>x / {{.Settings.Player_Max}}</h3>
+                <h4>players</h4>
+            </div>
+            <form action="/startGame" method="get" target="_self">
+                <input type="hidden" name="activeRound" value="0">
+                <button type="submit">Continue</button>
+            </form>
+        </div>
+        <footer class="bottom-footer">
+            <p>This is the waiting for players page. It will display a waiting warning, then transition to the poker table</p>
+        </footer>
+    </div>
+</body>
+<script src="/static/scripts/waiting-for-players.js"></script>
+</html>

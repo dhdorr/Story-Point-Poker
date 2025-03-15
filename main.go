@@ -31,6 +31,8 @@ func main() {
 	http.HandleFunc("POST /joinTable", tm.HandleJoin)
 
 	http.HandleFunc("POST /createTable", tm.HandleCreate)
+
+	http.HandleFunc("GET /startGame", tm.HandleStart)
 	// *******************
 
 	// serve css and js, from html pages

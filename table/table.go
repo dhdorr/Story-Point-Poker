@@ -10,9 +10,6 @@ type Table_Session_Identifiers struct {
 }
 
 type Table_Map map[Table_Session_Identifiers]Table_Session
-type Table_Map_I interface {
-	Table_Map
-}
 
 type Table_Settings struct {
 	Card_Layout      string

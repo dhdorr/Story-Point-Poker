@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
 )
 
 type Table_Manager struct {
@@ -47,12 +48,28 @@ func (tm *Table_Manager) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	tm.AddNewTableSession(table.Table_Session_Identifiers{Table_ID: ts.Table_ID, Passcode: ts.Passcode}, ts)
 	tm.PrintTables()
 
-	filename := "T-poker-table.html"
+	filename := "T-waiting.html"
+	w.Header().Add("tableID", ts.Table_ID)
 	handlers.RenderTemplate(w, filename, *ts)
 }
 
 func (tm *Table_Manager) AddNewTableSession(t_id table.Table_Session_Identifiers, ts *table.Table_Session) {
 	tm.Table_Sessions_M[t_id] = *ts
+}
+
+func (tm *Table_Manager) HandleStart(w http.ResponseWriter, r *http.Request) {
+	keys := make([]table.Table_Session_Identifiers, 0, len(tm.Table_Sessions_M))
+	for t := range tm.Table_Sessions_M {
+		keys = append(keys, t)
+	}
+
+	// fmt.Println(r.URL.Query())
+	t := tm.Table_Sessions_M[keys[0]]
+	t.Active_Round_ID, _ = strconv.Atoi(r.URL.Query().Get("activeRound"))
+	tm.Table_Sessions_M[keys[0]] = t
+
+	filename := "T-poker-table.html"
+	handlers.RenderTemplate(w, filename, tm.Table_Sessions_M[keys[0]])
 }
 
 // TESTING

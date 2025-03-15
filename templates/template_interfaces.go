@@ -15,5 +15,5 @@ type Gen_Test_Interface interface {
 }
 
 type Gen_Table_Session_Interface interface {
-	table.Table_Session | table.Table_Session_Constructor
+	table.Table_Session | table.Table_Session_Constructor | Gen_Test_B
 }
