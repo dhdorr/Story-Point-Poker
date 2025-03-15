@@ -27,7 +27,11 @@ func (tm *Table_Manager) HandleJoin(w http.ResponseWriter, r *http.Request) {
 	}
 	ts.AddPlayerToTableSession(un)
 
-	fmt.Printf("Session Joined: %v", ts.Players)
+	tm.Table_Sessions_M[t_id] = ts
+
+	fmt.Printf("Session Joined: %v\n", ts.Players)
+
+	tm.PrintTables()
 
 	filename := "T-poker-table.html"
 	handlers.RenderTemplate(w, filename, ts)
@@ -75,19 +79,14 @@ func (tm *Table_Manager) HandleTest() {
 	ts_j := tm.Table_Sessions_M[table.Table_Session_Identifiers{Table_ID: ts.Table_ID, Passcode: ts.Passcode}]
 
 	tm.Table_Sessions_M[table.Table_Session_Identifiers{Table_ID: ts.Table_ID, Passcode: ts.Passcode}] = *HandleTestJoin(test, &ts_j)
-
-	fmt.Printf("session finalized: %v \n", tm.Table_Sessions_M[table.Table_Session_Identifiers{Table_ID: ts.Table_ID, Passcode: ts.Passcode}])
 }
 
 func HandleTestCreate(form_values url.Values) (*table.Table_Session, error) {
-	fmt.Printf("creating table: %v \n", form_values)
 	ts, err := handlers.GenerateTableSession(form_values)
 	if err != nil {
 		return nil, err
 	}
-	// ts.AddPlayerToTableSession(form_values.Get("username"))
 
-	fmt.Printf("session made: %v \n", ts)
 	return ts, nil
 }
 
