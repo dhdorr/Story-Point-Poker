@@ -3,10 +3,10 @@ let username = ""
 let passcode = ""
 
 function saveData() {
-    
     localStorage.setItem("tableID", tableID);
     localStorage.setItem("passcode", passcode);
     localStorage.setItem("username", username);
+    localStorage.setItem(username + ':' + tableID, passcode);
 }
 
 function updateData(elm) {
@@ -22,5 +22,4 @@ function updateData(elm) {
         username = elm.value;
         console.log(username);
     }
-    
 }

@@ -26,6 +26,16 @@ func (tm *Table_Manager) HandleJoin(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Unable to find table: %v", t_id.Table_ID)
 		return
 	}
+
+	filename := "T-poker-table.html"
+	// TODO:
+	// Check if session is waiting for players or active or closed!
+	// if ts.IsOpen ...
+	if ts.Rounds[ts.Active_Round_ID].Phase == table.PhaseWaitingForPlayers {
+		filename = "T-waiting.html"
+	}
+	// ^^^
+
 	ts.AddPlayerToTableSession(un)
 
 	tm.Table_Sessions_M[t_id] = ts
@@ -34,7 +44,6 @@ func (tm *Table_Manager) HandleJoin(w http.ResponseWriter, r *http.Request) {
 
 	tm.PrintTables()
 
-	filename := "T-poker-table.html"
 	handlers.RenderTemplate(w, filename, ts)
 }
 
@@ -49,12 +58,20 @@ func (tm *Table_Manager) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	tm.PrintTables()
 
 	filename := "T-waiting.html"
-	w.Header().Add("tableID", ts.Table_ID)
+	// w.Header().Add("tableID", ts.Table_ID)
 	handlers.RenderTemplate(w, filename, *ts)
 }
 
-func (tm *Table_Manager) AddNewTableSession(t_id table.Table_Session_Identifiers, ts *table.Table_Session) {
-	tm.Table_Sessions_M[t_id] = *ts
+func (tm *Table_Manager) HandleCheckForNewPlayers(w http.ResponseWriter, r *http.Request) {
+	t_id := r.URL.Query().Get("tableID")
+	pc := r.URL.Query().Get("passcode")
+	// un := r.URL.Query().Get("username")
+
+	ts := tm.Table_Sessions_M[*table.NewTableSessionIdentifier(t_id, pc)]
+	ts.PrintTableSessionPlayers()
+
+	filename := "T-players.html"
+	handlers.RenderTemplate(w, filename, ts)
 }
 
 func (tm *Table_Manager) HandleStart(w http.ResponseWriter, r *http.Request) {
@@ -70,6 +87,10 @@ func (tm *Table_Manager) HandleStart(w http.ResponseWriter, r *http.Request) {
 
 	filename := "T-poker-table.html"
 	handlers.RenderTemplate(w, filename, tm.Table_Sessions_M[keys[0]])
+}
+
+func (tm *Table_Manager) AddNewTableSession(t_id table.Table_Session_Identifiers, ts *table.Table_Session) {
+	tm.Table_Sessions_M[t_id] = *ts
 }
 
 // TESTING

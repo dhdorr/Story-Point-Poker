@@ -57,9 +57,7 @@
         <input type="number" name="playerMax" id="playerMax" value="10" required>
 
         <div class="form-btns-wrapper">
-            <a href="/">
-                <button type="button" class="form-btn cancel">Cancel</button>
-            </a>
+            <button type="button" class="form-btn cancel" fx-action="static/pages/home-menu.html" fx-method="get" fx-trigger="click" fx-target="#homeMenuWrapper" fx-swap="innerHTML">Cancel</button>
             <button type="submit" class="form-btn" onclick="saveData();">Create</button>
         </div>
     </form>

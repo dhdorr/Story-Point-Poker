@@ -2,11 +2,16 @@ package table
 
 import (
 	"dhdorr/story-point-poker/player"
+	"fmt"
 )
 
 type Table_Session_Identifiers struct {
 	Table_ID string
 	Passcode string
+}
+
+func NewTableSessionIdentifier(t_id, pc string) *Table_Session_Identifiers {
+	return &Table_Session_Identifiers{Table_ID: t_id, Passcode: pc}
 }
 
 type Table_Map map[Table_Session_Identifiers]Table_Session
@@ -23,6 +28,7 @@ func NewTableSettings(card_layout string, num_cards, num_rounds, round_time_limi
 	return &Table_Settings{Card_Layout: card_layout, Number_Of_Cards: num_cards, Number_Of_Rounds: num_rounds, Round_Time_Limit: round_time_limit, Player_Max: player_max}
 }
 
+// should table session have a open or closed state field?
 type Table_Session struct {
 	Table_ID        string
 	Passcode        string
@@ -42,6 +48,10 @@ func NewTableSessionConstructed(tsc Table_Session_Constructor) *Table_Session {
 
 func (ts *Table_Session) AddPlayerToTableSession(un string) {
 	ts.Players = append(ts.Players, *player.NewPlayer(un))
+}
+
+func (ts *Table_Session) PrintTableSessionPlayers() {
+	fmt.Printf("Players in session [%v]: %v\n", ts.Table_ID, ts.Players)
 }
 
 type Table_Session_Constructor struct {

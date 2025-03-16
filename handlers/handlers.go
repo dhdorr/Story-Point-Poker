@@ -21,6 +21,10 @@ func HandleCreate(w http.ResponseWriter, r *http.Request) (*table.Table_Session,
 	// add player to new session, after it has been created
 	ts.AddPlayerToTableSession(r.FormValue("username"))
 
+	// set first round to waiting for players.... refactor later please....
+	// rounds might need their own function to go up or down a phase
+	ts.Rounds[0].Phase = table.PhaseWaitingForPlayers
+
 	fmt.Printf("session made: %v \n", ts)
 	return ts, nil
 }
@@ -61,7 +65,7 @@ func GenerateTableSession(form_values url.Values) (*table.Table_Session, error) 
 	}
 	tsc.PM = pm
 
-	tsc.AR = -1
+	tsc.AR = 0
 
 	return table.NewTableSessionConstructed(tsc), nil
 }

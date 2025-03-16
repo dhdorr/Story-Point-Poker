@@ -33,6 +33,8 @@ func main() {
 	http.HandleFunc("POST /createTable", tm.HandleCreate)
 
 	http.HandleFunc("GET /startGame", tm.HandleStart)
+
+	http.HandleFunc("GET /checkForNewPlayers", tm.HandleCheckForNewPlayers)
 	// *******************
 
 	// serve css and js, from html pages
