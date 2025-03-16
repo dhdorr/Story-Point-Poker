@@ -13,7 +13,13 @@
             <h2>Poker Table! - {{.Table_ID}}</h2>
             <h3>Live News</h3>
             <div fx-action="/checkForNewPlayers?tableID={{.Table_ID}}&passcode={{.Passcode}}" fx-trigger="poll" ext-fx-poll-interval="10000" fx-swap="innerHTML">
-            ... initial content ...
+                <div>
+                    <ul id="playersList">
+                        {{range .Players}}
+                        <li>{{.Username}}</li>
+                        {{end}}
+                    </ul>
+                </div>
             </div>
         </nav>
         <div class="home-content-wrapper" id="homeContentWrapper">
@@ -21,12 +27,14 @@
                 <h1>Waiting for players...</h1>
             </div>
             <div>
-                <h3><span id="playerCount">{{len .Players}}</span> / {{.Settings.Player_Max}}</h3>
+                <h3><span id="playerCount">{{len .Players}}</span> / <span id="playerMax">{{.Settings.Player_Max}}</span></h3>
                 <h4>players</h4>
             </div>
             <form action="/startGame" method="get" target="_self">
                 <input type="hidden" name="activeRound" value="0">
-                <button type="submit">Continue</button>
+                <input type="hidden" name="tableID" value="{{.Table_ID}}">
+                <input type="hidden" name="passcode" value="{{.Passcode}}">
+                <button type="submit" id="continueBtn">Continue</button>
             </form>
         </div>
         <footer class="bottom-footer">

@@ -66,6 +66,7 @@ func GenerateTableSession(form_values url.Values) (*table.Table_Session, error) 
 	tsc.PM = pm
 
 	tsc.AR = 0
+	tsc.ST = table.StateOpen
 
 	return table.NewTableSessionConstructed(tsc), nil
 }

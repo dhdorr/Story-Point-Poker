@@ -29,8 +29,11 @@ func (tm *Table_Manager) HandleJoin(w http.ResponseWriter, r *http.Request) {
 
 	filename := "T-poker-table.html"
 	// TODO:
-	// Check if session is waiting for players or active or closed!
-	// if ts.IsOpen ...
+	if ts.Session_State == table.StateClosed {
+		fmt.Fprintf(w, "Unable to join, table closed: %v", t_id.Table_ID)
+		return
+	}
+
 	if ts.Rounds[ts.Active_Round_ID].Phase == table.PhaseWaitingForPlayers {
 		filename = "T-waiting.html"
 	}
@@ -41,6 +44,9 @@ func (tm *Table_Manager) HandleJoin(w http.ResponseWriter, r *http.Request) {
 	tm.Table_Sessions_M[t_id] = ts
 
 	fmt.Printf("Session Joined: %v\n", ts.Players)
+
+	// Check if max player count has been reached... REFACTOR ME
+	tm.SetTableSessionState(t_id)
 
 	tm.PrintTables()
 
@@ -53,8 +59,13 @@ func (tm *Table_Manager) HandleCreate(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, "Failed to create a new table session: %v", err)
 		return
 	}
+	t_id := table.Table_Session_Identifiers{Table_ID: ts.Table_ID, Passcode: ts.Passcode}
 
-	tm.AddNewTableSession(table.Table_Session_Identifiers{Table_ID: ts.Table_ID, Passcode: ts.Passcode}, ts)
+	tm.AddNewTableSession(t_id, ts)
+
+	// Check if max player count has been reached... REFACTOR ME
+	tm.SetTableSessionState(t_id)
+
 	tm.PrintTables()
 
 	filename := "T-waiting.html"
@@ -62,6 +73,7 @@ func (tm *Table_Manager) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	handlers.RenderTemplate(w, filename, *ts)
 }
 
+// called in the waiting for players screen to update client-side player count visuals
 func (tm *Table_Manager) HandleCheckForNewPlayers(w http.ResponseWriter, r *http.Request) {
 	t_id := r.URL.Query().Get("tableID")
 	pc := r.URL.Query().Get("passcode")
@@ -70,27 +82,50 @@ func (tm *Table_Manager) HandleCheckForNewPlayers(w http.ResponseWriter, r *http
 	ts := tm.Table_Sessions_M[*table.NewTableSessionIdentifier(t_id, pc)]
 	ts.PrintTableSessionPlayers()
 
+	// if player max is reached...
+
 	filename := "T-players.html"
 	handlers.RenderTemplate(w, filename, ts)
 }
 
 func (tm *Table_Manager) HandleStart(w http.ResponseWriter, r *http.Request) {
-	keys := make([]table.Table_Session_Identifiers, 0, len(tm.Table_Sessions_M))
-	for t := range tm.Table_Sessions_M {
-		keys = append(keys, t)
-	}
-
-	// fmt.Println(r.URL.Query())
-	t := tm.Table_Sessions_M[keys[0]]
+	// keys := make([]table.Table_Session_Identifiers, 0, len(tm.Table_Sessions_M))
+	// for t := range tm.Table_Sessions_M {
+	// 	keys = append(keys, t)
+	// }
+	fmt.Println(r.URL.Query())
+	t_id := *table.NewTableSessionIdentifier(r.URL.Query().Get("tableID"), r.URL.Query().Get("passcode"))
+	t := tm.Table_Sessions_M[t_id]
 	t.Active_Round_ID, _ = strconv.Atoi(r.URL.Query().Get("activeRound"))
-	tm.Table_Sessions_M[keys[0]] = t
+	tm.Table_Sessions_M[t_id] = t
+
+	fmt.Printf("Table Started: %v\n", tm.Table_Sessions_M[t_id])
 
 	filename := "T-poker-table.html"
-	handlers.RenderTemplate(w, filename, tm.Table_Sessions_M[keys[0]])
+	handlers.RenderTemplate(w, filename, tm.Table_Sessions_M[t_id])
 }
 
 func (tm *Table_Manager) AddNewTableSession(t_id table.Table_Session_Identifiers, ts *table.Table_Session) {
 	tm.Table_Sessions_M[t_id] = *ts
+}
+
+func (tm *Table_Manager) SetTableSessionState(t_id table.Table_Session_Identifiers) {
+	ts := tm.Table_Sessions_M[t_id]
+	new_state := table.StateOpen
+	if len(ts.Players) >= ts.Settings.Player_Max {
+		new_state = table.StateClosed
+	}
+
+	ts_new := table.Table_Session{
+		Table_ID:        ts.Table_ID,
+		Passcode:        ts.Passcode,
+		Settings:        ts.Settings,
+		Players:         ts.Players,
+		Rounds:          ts.Rounds,
+		Active_Round_ID: ts.Active_Round_ID,
+		Session_State:   new_state,
+	}
+	tm.Table_Sessions_M[t_id] = ts_new
 }
 
 // TESTING

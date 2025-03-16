@@ -5,6 +5,13 @@ import (
 	"fmt"
 )
 
+type SessionState int
+
+const (
+	StateOpen SessionState = iota
+	StateClosed
+)
+
 type Table_Session_Identifiers struct {
 	Table_ID string
 	Passcode string
@@ -36,6 +43,7 @@ type Table_Session struct {
 	Players         []player.Player
 	Rounds          []Poker_Round
 	Active_Round_ID int
+	Session_State   SessionState
 }
 
 func NewTableSessionConstructed(tsc Table_Session_Constructor) *Table_Session {
@@ -43,7 +51,7 @@ func NewTableSessionConstructed(tsc Table_Session_Constructor) *Table_Session {
 	new_player_arr := player.NewPlayerArr(tsc.PM)
 	new_round_arr := NewPokerRoundArr(tsc.NR, tsc.PM)
 
-	return &Table_Session{Table_ID: tsc.ID, Passcode: tsc.PC, Settings: *new_table_settings, Players: *new_player_arr, Rounds: *new_round_arr, Active_Round_ID: tsc.AR}
+	return &Table_Session{Table_ID: tsc.ID, Passcode: tsc.PC, Settings: *new_table_settings, Players: *new_player_arr, Rounds: *new_round_arr, Active_Round_ID: tsc.AR, Session_State: tsc.ST}
 }
 
 func (ts *Table_Session) AddPlayerToTableSession(un string) {
@@ -64,4 +72,5 @@ type Table_Session_Constructor struct {
 	TL int
 	PM int
 	AR int
+	ST SessionState
 }

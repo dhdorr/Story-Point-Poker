@@ -22,6 +22,16 @@ document.addEventListener("fx:init", (evt)=>{
 document.addEventListener("fx:swapped", (evt)=>{
     let plist = document.getElementById("playersList")
     let pcount = document.getElementById("playerCount")
+    let pmax = document.getElementById("playerMax")
+    let c = plist.childElementCount
 
-    pcount.innerText = plist.childElementCount    
+    pcount.innerText = c
+    if (c >= pmax.innerText) {
+      navigateToPokerTable()
+    }
   })
+
+function navigateToPokerTable() {
+  let btn = document.getElementById("continueBtn")
+  btn.click();
+}
