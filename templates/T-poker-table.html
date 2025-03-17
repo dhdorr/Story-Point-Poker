@@ -23,6 +23,14 @@
             </div>
             
         </div>
+        <div>
+            <h2>Cards!</h2>
+            <div>
+                {{range .Cards}}
+                <button>{{.Value}}</button>
+                {{end}}
+            </div>
+        </div>
         <footer class="bottom-footer">
             <p>This is the main poker table page. It will have cards to choose from, a list of players at the table, and a timer</p>
         </footer>

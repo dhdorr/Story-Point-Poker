@@ -61,7 +61,8 @@ func (tm *Table_Manager) HandleCreate(w http.ResponseWriter, r *http.Request) {
 	}
 	t_id := table.Table_Session_Identifiers{Table_ID: ts.Table_ID, Passcode: ts.Passcode}
 
-	tm.AddNewTableSession(t_id, ts)
+	// tm.AddNewTableSession(t_id, ts)
+	tm.Table_Sessions_M[t_id] = *ts
 
 	// Check if max player count has been reached... REFACTOR ME
 	tm.SetTableSessionState(t_id)
@@ -89,10 +90,6 @@ func (tm *Table_Manager) HandleCheckForNewPlayers(w http.ResponseWriter, r *http
 }
 
 func (tm *Table_Manager) HandleStart(w http.ResponseWriter, r *http.Request) {
-	// keys := make([]table.Table_Session_Identifiers, 0, len(tm.Table_Sessions_M))
-	// for t := range tm.Table_Sessions_M {
-	// 	keys = append(keys, t)
-	// }
 	fmt.Println(r.URL.Query())
 	t_id := *table.NewTableSessionIdentifier(r.URL.Query().Get("tableID"), r.URL.Query().Get("passcode"))
 	t := tm.Table_Sessions_M[t_id]
@@ -124,6 +121,7 @@ func (tm *Table_Manager) SetTableSessionState(t_id table.Table_Session_Identifie
 		Rounds:          ts.Rounds,
 		Active_Round_ID: ts.Active_Round_ID,
 		Session_State:   new_state,
+		Cards:           ts.Cards,
 	}
 	tm.Table_Sessions_M[t_id] = ts_new
 }

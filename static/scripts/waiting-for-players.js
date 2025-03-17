@@ -31,9 +31,9 @@ document.addEventListener("fx:swapped", (evt)=>{
     }
   })
 
-  
+
 function navigateToPokerTable() {
-  const intervalID = setInterval(myCallback, 3000);
+  const intervalID = setInterval(doNavigation, 3000);
 }
 
 function doNavigation() {

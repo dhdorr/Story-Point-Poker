@@ -44,6 +44,7 @@ type Table_Session struct {
 	Rounds          []Poker_Round
 	Active_Round_ID int
 	Session_State   SessionState
+	Cards           []Card
 }
 
 func NewTableSessionConstructed(tsc Table_Session_Constructor) *Table_Session {
@@ -51,7 +52,23 @@ func NewTableSessionConstructed(tsc Table_Session_Constructor) *Table_Session {
 	new_player_arr := player.NewPlayerArr(tsc.PM)
 	new_round_arr := NewPokerRoundArr(tsc.NR, tsc.PM)
 
-	return &Table_Session{Table_ID: tsc.ID, Passcode: tsc.PC, Settings: *new_table_settings, Players: *new_player_arr, Rounds: *new_round_arr, Active_Round_ID: tsc.AR, Session_State: tsc.ST}
+	crds := make([]Card, 0, tsc.NC)
+	vi := 1
+	prev := 1
+	fmt.Printf("num cards: %v | cardlayout: %v\n", tsc.NC, tsc.CL)
+	for i := 0; i < tsc.NC; i++ {
+		if tsc.CL == Sequential {
+			crds = append(crds, Card{Value: i + 1})
+		} else if tsc.CL == Fibonacci {
+			crds = append(crds, Card{Value: vi})
+			temp := vi
+			vi = vi + prev
+			prev = temp
+		}
+	}
+	fmt.Println(crds)
+
+	return &Table_Session{Table_ID: tsc.ID, Passcode: tsc.PC, Settings: *new_table_settings, Players: *new_player_arr, Rounds: *new_round_arr, Active_Round_ID: tsc.AR, Session_State: tsc.ST, Cards: crds}
 }
 
 func (ts *Table_Session) AddPlayerToTableSession(un string) {
