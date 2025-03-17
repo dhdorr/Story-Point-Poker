@@ -27,7 +27,11 @@
             <h2>Cards!</h2>
             <div>
                 {{range .Cards}}
-                <button>{{.Value}}</button>
+                <form>
+                    <input type="hidden" name="pcard" value="{{.Value}}">
+                    <button value="{{.Value}}" fx-action="/selectCard" fx-method="post" fx-trigger="click" fx-swap="outerHTML" ext-fx-disable>{{.Value}}</button>
+                </form>
+                
                 {{end}}
             </div>
         </div>
@@ -36,4 +40,5 @@
         </footer>
     </div>
 </body>
+<script src="/static/scripts/poker-table.js"></script>
 </html>

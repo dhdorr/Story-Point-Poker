@@ -30,6 +30,8 @@ func main() {
 	// Custom API Requests
 	http.HandleFunc("POST /joinTable", tm.HandleJoin)
 
+	http.HandleFunc("POST /selectCard", tm.HandleSelectCard)
+
 	http.HandleFunc("POST /createTable", tm.HandleCreate)
 
 	http.HandleFunc("GET /startGame", tm.HandleStart)

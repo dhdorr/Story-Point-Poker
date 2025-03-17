@@ -3,6 +3,7 @@ package managers
 import (
 	"dhdorr/story-point-poker/handlers"
 	"dhdorr/story-point-poker/table"
+	"dhdorr/story-point-poker/templates"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -100,6 +101,34 @@ func (tm *Table_Manager) HandleStart(w http.ResponseWriter, r *http.Request) {
 
 	filename := "T-poker-table.html"
 	handlers.RenderTemplate(w, filename, tm.Table_Sessions_M[t_id])
+}
+
+func (tm *Table_Manager) HandleSelectCard(w http.ResponseWriter, r *http.Request) {
+	// r.ParseForm()
+	fmt.Printf("r.Formv: %v\n", r.FormValue("pcard"))
+	fmt.Printf("r.Form: %v\n", r.Form)
+	fmt.Println(r.Header.Get("tableID"))
+	fmt.Println(r.Header.Get("passcode"))
+	fmt.Println(r.Header.Get("username"))
+
+	sv, _ := strconv.Atoi(r.FormValue("pcard"))
+	t_id := table.Table_Session_Identifiers{Table_ID: r.Header.Get("tableID"), Passcode: r.Header.Get("passcode")}
+
+	valid_choice := false
+	for _, v := range tm.Table_Sessions_M[t_id].Cards {
+		if sv == v.Value {
+			valid_choice = true
+		}
+	}
+
+	if !valid_choice {
+		fmt.Fprintf(w, "Bad choice: %v", sv)
+		return
+	}
+
+	data := templates.Gen_Test_A{Value: sv}
+	filename := "T-card.html"
+	handlers.RenderTemplate(w, filename, data)
 }
 
 func (tm *Table_Manager) AddNewTableSession(t_id table.Table_Session_Identifiers, ts *table.Table_Session) {
