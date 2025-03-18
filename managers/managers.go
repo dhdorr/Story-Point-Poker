@@ -138,7 +138,14 @@ func (tm *Table_Manager) HandleSelectCard(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	tm.Table_Sessions_M[t_id].Rounds[0].SubmitVote(&tm.Table_Sessions_M[t_id].Players[0], sv)
+	ar_id := tm.Table_Sessions_M[t_id].Active_Round_ID
+	for i, v := range tm.Table_Sessions_M[t_id].Players {
+		if v.Username == r.Header.Get("username") {
+			tm.Table_Sessions_M[t_id].Rounds[ar_id].SubmitVote(&tm.Table_Sessions_M[t_id].Players[i], sv)
+		}
+	}
+
+	// tm.Table_Sessions_M[t_id].Rounds[0].SubmitVote(&tm.Table_Sessions_M[t_id].Players[0], sv)
 
 	fmt.Println(tm.Table_Sessions_M[t_id].Rounds[0])
 	data := templates.Gen_Test_A{Value: sv}

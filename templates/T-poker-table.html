@@ -22,7 +22,7 @@
                 {{end}}
             </div>
             <div fx-action="/checkForNewVotes?tableID={{.Table_ID}}&passcode={{.Passcode}}" fx-method="get" fx-trigger="poll" fx-target="#voteCount" ext-fx-poll-interval="10000" fx-swap="innerHTML">
-                <h3 id="voteCount">{{len .Players}}</h3>
+                <h3 id="voteCount">0</h3>
             </div>
             <div>
                 <h4>Players Voted</h4>
