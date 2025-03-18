@@ -90,6 +90,18 @@ func (tm *Table_Manager) HandleCheckForNewPlayers(w http.ResponseWriter, r *http
 	handlers.RenderTemplate(w, filename, ts)
 }
 
+func (tm *Table_Manager) HandleCheckForNewVotes(w http.ResponseWriter, r *http.Request) {
+	t_id := r.URL.Query().Get("tableID")
+	pc := r.URL.Query().Get("passcode")
+	// un := r.URL.Query().Get("username")
+
+	ts := tm.Table_Sessions_M[*table.NewTableSessionIdentifier(t_id, pc)]
+
+	rd := ts.Rounds[0]
+	filename := "T-votes.html"
+	handlers.RenderTemplate(w, filename, rd)
+}
+
 func (tm *Table_Manager) HandleStart(w http.ResponseWriter, r *http.Request) {
 	fmt.Println(r.URL.Query())
 	t_id := *table.NewTableSessionIdentifier(r.URL.Query().Get("tableID"), r.URL.Query().Get("passcode"))
@@ -126,6 +138,9 @@ func (tm *Table_Manager) HandleSelectCard(w http.ResponseWriter, r *http.Request
 		return
 	}
 
+	tm.Table_Sessions_M[t_id].Rounds[0].SubmitVote(&tm.Table_Sessions_M[t_id].Players[0], sv)
+
+	fmt.Println(tm.Table_Sessions_M[t_id].Rounds[0])
 	data := templates.Gen_Test_A{Value: sv}
 	filename := "T-card.html"
 	handlers.RenderTemplate(w, filename, data)

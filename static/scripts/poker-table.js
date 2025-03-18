@@ -1,3 +1,7 @@
+const t_id = localStorage.getItem("tableID");
+const pc = localStorage.getItem("passcode");
+const un = localStorage.getItem("username");
+
 console.log("help")
 
 document.addEventListener("fx:init", (evt)=>{
@@ -19,10 +23,32 @@ document.addEventListener("fx:init", (evt)=>{
     }
   })
 
+// fixi polling extension
+document.addEventListener("fx:init", (evt)=>{
+    let elt = evt.target
+    if (elt.matches("[ext-fx-poll-interval]")){
+      // wait for the non-bubbling fx:inited event on the element so the __fixi property is available
+      elt.addEventListener("fx:inited", ()=>{
+          // squirrel away in case we want to call clearInterval() later
+          elt.__fixi.pollInterval = setInterval(()=>{
+              elt.dispatchEvent(new CustomEvent("poll"))
+          }, parseInt(elt.getAttribute("ext-fx-poll-interval")))
+      })
+    }
+  })
+
 // for every fixi request, add the tableID, passcode, and username to the header
 document.addEventListener("fx:config", (evt)=>{
-    evt.detail.cfg.headers.tableID = localStorage.getItem("tableID");
-    evt.detail.cfg.headers.passcode = localStorage.getItem("passcode");
-    evt.detail.cfg.headers.username = localStorage.getItem("username");
+    evt.detail.cfg.headers.tableID = t_id
+    evt.detail.cfg.headers.passcode = pc
+    evt.detail.cfg.headers.username = un
     console.log(evt.detail.cfg.headers)
   })
+
+
+function UpdateSelectedCard(elm) {
+    let cards = document.querySelectorAll(".selected");
+    cards.forEach(element => {
+        element.classList.remove("selected");
+    });
+}

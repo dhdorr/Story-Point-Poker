@@ -21,7 +21,12 @@
                 <div>{{.Username}}</div>
                 {{end}}
             </div>
-            
+            <div fx-action="/checkForNewVotes?tableID={{.Table_ID}}&passcode={{.Passcode}}" fx-method="get" fx-trigger="poll" fx-target="#voteCount" ext-fx-poll-interval="10000" fx-swap="innerHTML">
+                <h3 id="voteCount">{{len .Players}}</h3>
+            </div>
+            <div>
+                <h4>Players Voted</h4>
+            </div>
         </div>
         <div>
             <h2>Cards!</h2>
@@ -29,7 +34,7 @@
                 {{range .Cards}}
                 <form>
                     <input type="hidden" name="pcard" value="{{.Value}}">
-                    <button value="{{.Value}}" fx-action="/selectCard" fx-method="post" fx-trigger="click" fx-swap="outerHTML" ext-fx-disable>{{.Value}}</button>
+                    <button onclick="UpdateSelectedCard(this)" value="{{.Value}}" fx-action="/selectCard" fx-method="post" fx-trigger="click" fx-swap="outerHTML" ext-fx-disable>{{.Value}}</button>
                 </form>
                 
                 {{end}}

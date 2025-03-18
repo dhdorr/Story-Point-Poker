@@ -20,10 +20,11 @@ type Poker_Round struct {
 	Start_Time time.Time
 	Votes      map[*player.Player]int
 	Phase      RoundPhase
+	VoteCount  int
 }
 
 func NewPokerRound(playerMax int) *Poker_Round {
-	return &Poker_Round{Votes: make(map[*player.Player]int), Phase: PhaseNotStarted}
+	return &Poker_Round{Votes: make(map[*player.Player]int), Phase: PhaseNotStarted, VoteCount: 0}
 }
 
 func NewPokerRoundArr(num_rounds, player_max int) *[]Poker_Round {
@@ -38,4 +39,5 @@ func NewPokerRoundArr(num_rounds, player_max int) *[]Poker_Round {
 
 func (round *Poker_Round) SubmitVote(player *player.Player, vote int) {
 	round.Votes[player] = vote
+	round.VoteCount = len(round.Votes)
 }
