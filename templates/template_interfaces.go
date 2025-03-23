@@ -46,9 +46,17 @@ type Game_Table struct {
 type Results struct {
 	Cards       []table.Results_Card
 	ActiveRound int
+	NextRound   int
 	IsAdmin     bool
+	Table_ID    string
+	Passcode    string
+	Username    string
+}
+
+type Should_Change_Round struct {
+	ChangeRound bool
 }
 
 type Gen_Table_Session_Interface interface {
-	table.Table_Session | table.Table_Session_Constructor | Gen_Test_B | Gen_Test_A | table.Poker_Round | Player_Count | Waiting_For_Players | Results | Game_Table
+	table.Table_Session | table.Table_Session_Constructor | Gen_Test_B | Gen_Test_A | table.Poker_Round | Player_Count | Waiting_For_Players | Results | Game_Table | Should_Change_Round
 }

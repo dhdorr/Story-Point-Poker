@@ -19,11 +19,27 @@
         </div>
     {{end}}
     {{if .IsAdmin}}
-    <div>
-        <button>Continue to Round {{.ActiveRound}}</button>
-    </div>
+    <form action="/nextRound" method="post" target="_self">
+        <input type="hidden" name="activeRound" value="{{.ActiveRound}}">
+        <input type="hidden" name="tableID" value="{{.Table_ID}}">
+        <input type="hidden" name="passcode" value="{{.Passcode}}">
+        <input type="hidden" name="isAdmin" value="{{.IsAdmin}}">
+        <input type="hidden" name="username" value="{{.Username}}">
+        <button type="submit" id="continueBtn">Continue to Round {{.NextRound}}</button>
+    </form>
     {{else}}
+    <form action="/nextRound" method="post" target="_self" style="display: none;">
+        <input type="hidden" name="activeRound" value="{{.ActiveRound}}">
+        <input type="hidden" name="tableID" value="{{.Table_ID}}">
+        <input type="hidden" name="passcode" value="{{.Passcode}}">
+        <input type="hidden" name="isAdmin" value="{{.IsAdmin}}">
+        <input type="hidden" name="username" value="{{.Username}}">
+        <button type="submit" id="continueBtn">Continue to Round {{.NextRound}}</button>
+    </form>
     {{end}}
+    <div fx-action="/checkForRoundChange?tableID={{.Table_ID}}&passcode={{.Passcode}}&activeRound={{.ActiveRound}}" fx-trigger="poll" ext-fx-poll-interval="1000" fx-swap="innerHTML" style="display: none;">
+        <data id="newRound" value="false"></data>
+    </div>
 </body>
-<!-- <script src="/static/scripts/waiting-for-players.js"></script> -->
+<script src="/static/scripts/results.js"></script>
 </html>

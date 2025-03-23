@@ -197,6 +197,8 @@ func (tm *Table_Manager) HandleEndRound(w http.ResponseWriter, r *http.Request) 
 	t_id := *table.NewTableSessionIdentifier(r.URL.Query().Get("tableID"), r.URL.Query().Get("passcode"))
 	ts := tm.Table_Sessions_M[t_id]
 
+	un := r.URL.Query().Get("username")
+
 	isAdmin, _ := strconv.ParseBool(r.URL.Query().Get("isAdmin"))
 
 	rc_arr := make([]table.Results_Card, 0, len(ts.Cards))
@@ -220,10 +222,67 @@ func (tm *Table_Manager) HandleEndRound(w http.ResponseWriter, r *http.Request) 
 
 	data := templates.Results{
 		Cards:       rc_arr,
-		ActiveRound: ts.Active_Round_ID + 1,
+		ActiveRound: ts.Active_Round_ID,
+		NextRound:   ts.Active_Round_ID + 1,
 		IsAdmin:     isAdmin,
+		Table_ID:    t_id.Table_ID,
+		Passcode:    t_id.Passcode,
+		Username:    un,
 	}
+
 	handlers.RenderTemplate(w, "T-results.html", data)
+}
+
+func (tm *Table_Manager) HandleNextRound(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	t_id := table.Table_Session_Identifiers{Table_ID: r.FormValue("tableID"), Passcode: r.FormValue("passcode")}
+	un := r.FormValue("username")
+
+	isAdmin, _ := strconv.ParseBool(r.FormValue("isAdmin"))
+
+	ts := tm.Table_Sessions_M[t_id]
+
+	if ts.Active_Round_ID+1 >= ts.Settings.Number_Of_Rounds {
+		fmt.Fprintf(w, "game over, no more rounds!")
+		return
+	}
+
+	if isAdmin {
+
+		ts.Active_Round_ID = ts.Active_Round_ID + 1
+		ts.Rounds[ts.Active_Round_ID].Phase = table.PhaseStarted
+		tm.Table_Sessions_M[t_id] = ts
+	}
+
+	data := templates.Game_Table{
+		Cards:    ts.Cards,
+		Players:  ts.Players,
+		Table_ID: ts.Table_ID,
+		Passcode: ts.Passcode,
+		IsAdmin:  isAdmin,
+		Username: un,
+	}
+
+	handlers.RenderTemplate(w, "T-poker-table.html", data)
+}
+
+func (tm *Table_Manager) HandleCheckForRoundChange(w http.ResponseWriter, r *http.Request) {
+	t_id := *table.NewTableSessionIdentifier(r.URL.Query().Get("tableID"), r.URL.Query().Get("passcode"))
+	ts := tm.Table_Sessions_M[t_id]
+
+	r_id, _ := strconv.Atoi(r.URL.Query().Get("activeRound"))
+	val := false
+
+	fmt.Printf("inc_roundID: %v, ts_roundID: %v\n", r_id, ts.Active_Round_ID)
+	if ts.Active_Round_ID != r_id {
+		val = true
+	}
+
+	data := templates.Should_Change_Round{
+		ChangeRound: val,
+	}
+
+	handlers.RenderTemplate(w, "T-change-round.html", data)
 }
 
 func (tm *Table_Manager) HandleSelectCard(w http.ResponseWriter, r *http.Request) {
