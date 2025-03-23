@@ -11,31 +11,35 @@
     <div class="home-page-wrapper">
         <nav class="top-nav">
             <h2>Poker Table! - {{.Table_ID}}</h2>
-            <h3>Live News</h3>
-            <div fx-action="/checkForNewPlayers?tableID={{.Table_ID}}&passcode={{.Passcode}}" fx-trigger="poll" ext-fx-poll-interval="10000" fx-swap="innerHTML">
-                <div>
-                    <ul id="playersList">
-                        {{range .Players}}
-                        <li>{{.Username}}</li>
-                        {{end}}
-                    </ul>
-                </div>
-            </div>
         </nav>
         <div class="home-content-wrapper" id="homeContentWrapper">
             <div>
                 <h1>Waiting for players...</h1>
             </div>
-            <div>
-                <h3><span id="playerCount">{{len .Players}}</span> / <span id="playerMax">{{.Settings.Player_Max}}</span></h3>
-                <h4>players</h4>
+            <div fx-action="/playerCount?tableID={{.Table_ID}}&passcode={{.Passcode}}" fx-trigger="poll" ext-fx-poll-interval="1000" fx-swap="innerHTML" fx-target="#playerCount">
+                <h3><span id="playerCount">{{.PlayerCount}}<data id="isReady" value="{{.IsReady}}" style="display: none;"></data></span> / <span id="maxPlayers">{{.MaxPlayers}}</span></h3>
             </div>
-            <form action="/startGame" method="get" target="_self">
-                <input type="hidden" name="activeRound" value="0">
-                <input type="hidden" name="tableID" value="{{.Table_ID}}">
-                <input type="hidden" name="passcode" value="{{.Passcode}}">
-                <button type="submit" id="continueBtn">Continue</button>
-            </form>
+            <data id="timeLimit" value="{{.TimeLimit}}" style="display: none;"></data>
+            
+            {{if .IsAdmin}}
+                <form action="/startGame" method="get" target="_self">
+                    <input type="hidden" name="activeRound" value="0">
+                    <input type="hidden" name="tableID" value="{{.Table_ID}}">
+                    <input type="hidden" name="passcode" value="{{.Passcode}}">
+                    <input type="hidden" name="isAdmin" value="{{.IsAdmin}}">
+                    <input type="hidden" name="username" value="{{.Username}}">
+                    <button type="submit" id="continueBtn">Continue</button>
+                </form>
+            {{else}}
+                <form action="/startGame" method="get" target="_self" style="display: none;">
+                    <input type="hidden" name="tableID" value="{{.Table_ID}}">
+                    <input type="hidden" name="passcode" value="{{.Passcode}}">
+                    <input type="hidden" name="isAdmin" value="{{.IsAdmin}}">
+                    <input type="hidden" name="username" value="{{.Username}}">
+                    <button type="submit" id="continueBtn">Continue</button>
+                </form>
+            {{end}}
+            
         </div>
         <footer class="bottom-footer">
             <p>This is the waiting for players page. It will display a waiting warning, then transition to the poker table</p>

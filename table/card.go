@@ -10,3 +10,9 @@ const (
 type Card struct {
 	Value int
 }
+
+type Results_Card struct {
+	Value     int
+	Winner    bool
+	VoteCount int
+}

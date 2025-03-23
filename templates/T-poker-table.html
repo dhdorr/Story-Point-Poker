@@ -17,9 +17,7 @@
             <h1>Poker Table Page!</h1>
             <h2>{{.Table_ID}}</h2>
             <div>
-                {{range .Players}}
-                <div>{{.Username}}</div>
-                {{end}}
+                {{len .Players}}
             </div>
             <div fx-action="/checkForNewVotes?tableID={{.Table_ID}}&passcode={{.Passcode}}" fx-method="get" fx-trigger="poll" fx-target="#voteCount" ext-fx-poll-interval="10000" fx-swap="innerHTML">
                 <h3 id="voteCount">0</h3>
@@ -40,6 +38,14 @@
                 {{end}}
             </div>
         </div>
+        <form action="/results" method="get" target="_self" style="display: none;">
+            <input type="hidden" name="activeRound" value="0">
+            <input type="hidden" name="tableID" value="{{.Table_ID}}">
+            <input type="hidden" name="passcode" value="{{.Passcode}}">
+            <input type="hidden" name="isAdmin" value="{{.IsAdmin}}">
+            <input type="hidden" name="username" value="{{.Username}}">
+            <button type="submit" id="continueBtn">Continue</button>
+        </form>
         <footer class="bottom-footer">
             <p>This is the main poker table page. It will have cards to choose from, a list of players at the table, and a timer</p>
         </footer>

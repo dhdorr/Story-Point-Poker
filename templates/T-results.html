@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Story Point Poker - Results</title>
+
+    <script src="/static/scripts/fixi-0.6.5.js"></script>
+</head>
+<body>
+    <h1>Results!</h1>
+    {{range .Cards}}
+        <div>
+            <p>{{.VoteCount}} / {{.Value}}</p>
+            {{if .Winner}}
+            <p>Winner!</p>
+            {{else}}
+            {{end}}
+        </div>
+    {{end}}
+    {{if .IsAdmin}}
+    <div>
+        <button>Continue to Round {{.ActiveRound}}</button>
+    </div>
+    {{else}}
+    {{end}}
+</body>
+<!-- <script src="/static/scripts/waiting-for-players.js"></script> -->
+</html>

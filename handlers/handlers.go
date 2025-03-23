@@ -19,11 +19,11 @@ func HandleCreate(w http.ResponseWriter, r *http.Request) (*table.Table_Session,
 	}
 
 	// add player to new session, after it has been created
-	ts.AddPlayerToTableSession(r.FormValue("username"))
+	ts.AddPlayerToTableSession(r.FormValue("username"), true)
 
 	// set first round to waiting for players.... refactor later please....
 	// rounds might need their own function to go up or down a phase
-	ts.Rounds[0].Phase = table.PhaseWaitingForPlayers
+	ts.Rounds[ts.Active_Round_ID].Phase = table.PhaseWaitingForPlayers
 
 	fmt.Printf("session made: %v \n", ts)
 	return ts, nil

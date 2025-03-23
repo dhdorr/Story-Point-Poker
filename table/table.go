@@ -71,8 +71,8 @@ func NewTableSessionConstructed(tsc Table_Session_Constructor) *Table_Session {
 	return &Table_Session{Table_ID: tsc.ID, Passcode: tsc.PC, Settings: *new_table_settings, Players: *new_player_arr, Rounds: *new_round_arr, Active_Round_ID: tsc.AR, Session_State: tsc.ST, Cards: crds}
 }
 
-func (ts *Table_Session) AddPlayerToTableSession(un string) {
-	ts.Players = append(ts.Players, *player.NewPlayer(un))
+func (ts *Table_Session) AddPlayerToTableSession(un string, isAdmin bool) {
+	ts.Players = append(ts.Players, *player.NewPlayer(un, isAdmin))
 }
 
 func (ts *Table_Session) PrintTableSessionPlayers() {

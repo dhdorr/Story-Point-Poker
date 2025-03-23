@@ -38,7 +38,11 @@ func main() {
 
 	http.HandleFunc("GET /checkForNewPlayers", tm.HandleCheckForNewPlayers)
 
+	http.HandleFunc("GET /playerCount", tm.HandlePlayerCount)
+
 	http.HandleFunc("GET /checkForNewVotes", tm.HandleCheckForNewVotes)
+
+	http.HandleFunc("GET /results", tm.HandleEndRound)
 	// *******************
 
 	// serve css and js, from html pages

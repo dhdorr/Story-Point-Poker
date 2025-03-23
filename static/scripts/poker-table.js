@@ -1,6 +1,7 @@
 const t_id = localStorage.getItem("tableID");
 const pc = localStorage.getItem("passcode");
 const un = localStorage.getItem("username");
+const tl = parseInt(localStorage.getItem("timeLimit"));
 
 console.log("help")
 
@@ -45,6 +46,20 @@ document.addEventListener("fx:config", (evt)=>{
     console.log(evt.detail.cfg.headers)
   })
 
+
+let intervalID = setInterval(doCountdown, 1000)
+let timeRemaining = tl
+
+function doCountdown() {
+    timeRemaining -= 1;
+    if (timeRemaining <= 0) {
+        const cBtn = document.getElementById("continueBtn");
+        clearInterval(intervalID);
+        intervalID = null;
+
+        cBtn.click();
+    }
+}
 
 function UpdateSelectedCard(elm) {
     let cards = document.querySelectorAll(".selected");

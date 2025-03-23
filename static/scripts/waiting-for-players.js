@@ -3,7 +3,10 @@ console.log("waiting for players...");
 const table_id = localStorage.getItem("tableID");
 const passcode = localStorage.getItem("passcode");
 const username = localStorage.getItem("username");
+const maxPlayers = parseInt(document.getElementById("maxPlayers").innerText)
 
+const tl = document.getElementById("timeLimit")
+localStorage.setItem("timeLimit", tl.value)
 
 // fixi polling extension
 document.addEventListener("fx:init", (evt)=>{
@@ -20,13 +23,13 @@ document.addEventListener("fx:init", (evt)=>{
   })
 
 document.addEventListener("fx:swapped", (evt)=>{
-    let plist = document.getElementById("playersList")
-    let pcount = document.getElementById("playerCount")
-    let pmax = document.getElementById("playerMax")
-    let c = plist.childElementCount
+    let pcount = parseInt(document.getElementById("playerCount").innerText)
+    let is_ready = parseInt(document.getElementById("isReady").value)
 
-    pcount.innerText = c
-    if (c >= pmax.innerText) {
+    if (pcount >= maxPlayers || is_ready) {
+      document.removeEventListener("fx:init", (evt)=>{
+        console.log("polling turned off")
+      });
       navigateToPokerTable()
     }
   })
