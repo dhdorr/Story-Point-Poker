@@ -243,7 +243,7 @@ func (tm *Table_Manager) HandleNextRound(w http.ResponseWriter, r *http.Request)
 	ts := tm.Table_Sessions_M[t_id]
 
 	if ts.Active_Round_ID+1 >= ts.Settings.Number_Of_Rounds {
-		fmt.Fprintf(w, "game over, no more rounds!")
+		handlers.RenderTemplate(w, "T-end-screen.html", templates.Gen_Test_B{})
 		return
 	}
 
