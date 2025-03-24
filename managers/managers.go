@@ -242,16 +242,22 @@ func (tm *Table_Manager) HandleNextRound(w http.ResponseWriter, r *http.Request)
 
 	ts := tm.Table_Sessions_M[t_id]
 
-	if ts.Active_Round_ID+1 >= ts.Settings.Number_Of_Rounds {
-		handlers.RenderTemplate(w, "T-end-screen.html", templates.Gen_Test_B{})
-		return
-	}
-
 	if isAdmin {
-
+		if ts.Active_Round_ID >= ts.Settings.Number_Of_Rounds {
+			ts.Active_Round_ID = ts.Active_Round_ID + 1
+			// ts.Rounds[ts.Active_Round_ID].Phase = table.PhaseStarted
+			tm.Table_Sessions_M[t_id] = ts
+			handlers.RenderTemplate(w, "T-end-screen.html", templates.Gen_Test_B{})
+			return
+		}
 		ts.Active_Round_ID = ts.Active_Round_ID + 1
 		ts.Rounds[ts.Active_Round_ID].Phase = table.PhaseStarted
 		tm.Table_Sessions_M[t_id] = ts
+	} else {
+		if ts.Active_Round_ID >= ts.Settings.Number_Of_Rounds {
+			handlers.RenderTemplate(w, "T-end-screen.html", templates.Gen_Test_B{})
+			return
+		}
 	}
 
 	data := templates.Game_Table{
