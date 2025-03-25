@@ -1,52 +1,28 @@
 package main
 
 import (
-	"dhdorr/story-point-poker/managers"
-	"dhdorr/story-point-poker/table"
+	"dhdorr/story-point-poker/handlers"
+	"dhdorr/story-point-poker/table_manager"
 	"fmt"
 	"log"
 	"net/http"
 )
 
 func main() {
-	fmt.Println("Welcome to Story Point Poker 2")
+	fmt.Println("Welcome to Story Point Poker 3")
 
-	// Global table manager that keeps every active table session in memory
-	tm := managers.Table_Manager{Table_Sessions_M: make(map[table.Table_Session_Identifiers]table.Table_Session)}
+	tm := table_manager.Table_Manager{TableMap: make(table_manager.Table_Map)}
 
-	// Test
-	tm.HandleTest()
-	tm.PrintTables()
-
+	// Serve home page
 	http.Handle("/", http.FileServer(http.Dir(".")))
 
-	// Serve static pages
-	fs_pages := http.FileServer(http.Dir("pages"))
-	http.HandleFunc("GET /pages/", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("getting some page...")
-		http.StripPrefix("/pages/", fs_pages).ServeHTTP(w, r)
-	})
-
 	// Custom API Requests
-	http.HandleFunc("POST /joinTable", tm.HandleJoin)
+	http.HandleFunc("GET /home", handlers.HandleHome)
+	http.HandleFunc("GET /join-table-menu", handlers.HandleJoinTableMenu)
+	http.HandleFunc("GET /create-table-menu", handlers.HandleCreateTableMenu)
+	http.HandleFunc("POST /join-table", tm.HandleJoinTable)
+	http.HandleFunc("POST /create-table", tm.HandleCreateTable)
 
-	http.HandleFunc("POST /selectCard", tm.HandleSelectCard)
-
-	http.HandleFunc("POST /createTable", tm.HandleCreate)
-
-	http.HandleFunc("GET /startGame", tm.HandleStart)
-
-	http.HandleFunc("GET /checkForNewPlayers", tm.HandleCheckForNewPlayers)
-
-	http.HandleFunc("GET /playerCount", tm.HandlePlayerCount)
-
-	http.HandleFunc("GET /checkForNewVotes", tm.HandleCheckForNewVotes)
-
-	http.HandleFunc("GET /checkForRoundChange", tm.HandleCheckForRoundChange)
-
-	http.HandleFunc("GET /results", tm.HandleEndRound)
-
-	http.HandleFunc("POST /nextRound", tm.HandleNextRound)
 	// *******************
 
 	// serve css and js, from html pages

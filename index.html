@@ -3,29 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Story Point Poker 2</title>
+    <title>Story Point Poker 3</title>
 
     <link rel="stylesheet" href="/static/styles/style.css">
     <script src="/static/scripts/fixi-0.6.5.js"></script>
+    <script src="/static/scripts/ext-fixi.js"></script>
 </head>
 <body>
-    <div class="home-page-wrapper">
-        <nav class="top-nav">
-            <h2>Home Page!</h2>
-        </nav>
-        <div class="home-content-wrapper" id="homeContentWrapper">
-            <div class="home-menu-wrapper" id="homeMenuWrapper">
-                <div class="home-menu">
-                    <button class="form-btn" fx-action="static/pages/join-form.html" fx-method="get" fx-trigger="click" fx-target="#homeMenuWrapper" fx-swap="innerHTML">Join Table</button>
-                    <p>or</p>
-                    <button class="form-btn" fx-action="static/pages/create-form.html" fx-method="get" fx-trigger="click" fx-target="#homeMenuWrapper" fx-swap="innerHTML">Create Table</button>
-                </div>
-            </div>
-        </div>
-        <footer class="bottom-footer">
-            <p>This page will contain the Join and Create buttons, allowing users to log in and create a new story point poker table.</p>
-        </footer>
+    <div id="home" class="home-wrapper">
+        <h2>Home</h2>
+        <button fx-action="/join-table-menu" fx-method="get" fx-trigger="click" fx-target="#home" fx-swap="innerHTML"> Join Table </button>
+        <button fx-action="/create-table-menu" fx-method="get" fx-trigger="click" fx-target="#home" fx-swap="innerHTML"> Create Table </button>
     </div>
 </body>
-<script src="/static/scripts/home-inputs.js"></script>
+<script src="/static/scripts/home.js"></script>
 </html>
