@@ -11,7 +11,7 @@ import (
 func main() {
 	fmt.Println("Welcome to Story Point Poker 3")
 
-	tm := table_manager.Table_Manager{TableMap: make(table_manager.Table_Map)}
+	tm := make(table_manager.Table_Map)
 
 	// Serve home page
 	http.Handle("/", http.FileServer(http.Dir(".")))
