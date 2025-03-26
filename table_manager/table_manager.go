@@ -194,6 +194,51 @@ func (tm *Table_Map) HandleStartGame(w http.ResponseWriter, r *http.Request) {
 	tmpl.Execute(w, data)
 }
 
+func (tm *Table_Map) HandleVote(w http.ResponseWriter, r *http.Request) {
+	un := r.FormValue("username")
+	id := r.FormValue("tableID")
+	pc := r.FormValue("passcode")
+	val, _ := strconv.Atoi(r.FormValue("cardValue"))
+
+	t_id := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map := *tm
+	table := t_map[t_id]
+
+	cards := table.Cards
+	vote := card.Vote{PlayerID: un}
+	for _, c := range cards {
+		if c.Value == val {
+			vote.Card = c
+		}
+	}
+
+	ar := table.ActiveRoundID
+	rounds := table.Rounds
+	rd := rounds[ar]
+
+	is_new_vote := true
+	for i, v := range rd.Votes {
+		if vote.PlayerID == v.PlayerID {
+			rd.Votes[i] = vote
+			is_new_vote = false
+			fmt.Printf("Player has already voted: %v\n", un)
+			break
+		}
+	}
+	if is_new_vote {
+		rd.Votes = append(rd.Votes, vote)
+	}
+
+	rounds[ar] = rd
+	table.Rounds = rounds
+	t_map[t_id] = table
+
+	fmt.Printf("t_map[t_id]: %v\n", t_map[t_id])
+
+	tmpl, _ := template.New("count").Parse("picked")
+	tmpl.Execute(w, nil)
+}
+
 // func (tm *Table_Map) ChangeActiveRound(t_id Table_Identifiers, roundID int) {
 // 	t_map := *tm
 // 	table := t_map[t_id]

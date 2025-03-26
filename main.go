@@ -25,6 +25,7 @@ func main() {
 	http.HandleFunc("DELETE /delete-tables", tm.HandleDeleteTables)
 	http.HandleFunc("GET /player-count", tm.HandlePlayerCount)
 	http.HandleFunc("POST /start-game", tm.HandleStartGame)
+	http.HandleFunc("POST /vote", tm.HandleVote)
 
 	// *******************
 

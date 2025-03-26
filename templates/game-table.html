@@ -1,5 +1,11 @@
 <div id="game-board">
     {{range .Cards}}
-    <button>{{.Value}}</button>
+    <form>
+        <input type="hidden" name="tableID" value="testID">
+        <input type="hidden" name="passcode" value="testPC">
+        <input type="hidden" name="username" value="testUN2">
+        <input type="hidden" name="cardValue" value="{{.Value}}">
+        <button fx-action="/vote" fx-method="post" fx-trigger="click" fx-swap="className">{{.Value}}</button>
+    </form>
     {{end}}
 </div>
