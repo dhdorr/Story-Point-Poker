@@ -5,6 +5,7 @@ import (
 	"dhdorr/story-point-poker/player"
 	"dhdorr/story-point-poker/round"
 	"dhdorr/story-point-poker/table_session"
+	"dhdorr/story-point-poker/templates"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -21,7 +22,6 @@ type Table_Map map[Table_Identifiers]table_session.Table
 
 func (tm *Table_Map) HandleJoinTable(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	fmt.Printf("recv join table form: %v\n", r.Form)
 
 	id := r.FormValue("tableID")
 	pc := r.FormValue("passcode")
@@ -29,6 +29,8 @@ func (tm *Table_Map) HandleJoinTable(w http.ResponseWriter, r *http.Request) {
 		TableID:  id,
 		Passcode: pc,
 	}
+
+	un := r.FormValue("username")
 
 	t_map := *tm
 	_, ok := t_map[t_id]
@@ -38,15 +40,26 @@ func (tm *Table_Map) HandleJoinTable(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	fmt.Printf("tm: %v\n", tm)
+	t_state := t_map[t_id].State
+	if t_state == table_session.StateClosed {
+		fmt.Fprintf(w, "table is at capacity! id: %v, pc: %v", id, pc)
+		return
+	}
 
+	table := t_map[t_id]
+	table.Players = append(table.Players, player.Player{PlayerID: "test-guest", Username: un})
+	if len(table.Players) >= table.Settings.MaxPlayers {
+		table.State = table_session.StateClosed
+	}
+	t_map[t_id] = table
+
+	data := templates.Waiting{MaxPlayers: t_map[t_id].Settings.MaxPlayers, PlayerCount: len(t_map[t_id].Players)}
 	tmpl := template.Must(template.ParseFiles("templates/poker-table.html"))
-	tmpl.Execute(w, nil)
+	tmpl.Execute(w, data)
 }
 
 func (tm *Table_Map) HandleCreateTable(w http.ResponseWriter, r *http.Request) {
 	r.ParseForm()
-	fmt.Printf("recv create table form: %v\n", r.Form)
 
 	id := r.FormValue("tableID")
 	pc := r.FormValue("passcode")
@@ -113,7 +126,6 @@ func (tm *Table_Map) HandleCreateTable(w http.ResponseWriter, r *http.Request) {
 			prev = val - prev
 		}
 	}
-	fmt.Printf("cd: %v\n", cd)
 
 	stime := time.Now()
 	// eTime := time.Time{} // zero value for end time
@@ -142,6 +154,51 @@ func (tm *Table_Map) HandleCreateTable(w http.ResponseWriter, r *http.Request) {
 
 	t_map[t_id] = new_table
 
+	data := templates.Waiting{MaxPlayers: mp, PlayerCount: len(pl)}
 	tmpl := template.Must(template.ParseFiles("templates/poker-table.html"))
+	tmpl.Execute(w, data)
+}
+
+func (tm *Table_Map) HandleDeleteTables(w http.ResponseWriter, r *http.Request) {
+	t_map := *tm
+
+	for k := range t_map {
+		delete(t_map, k)
+	}
+
+	fmt.Fprintf(w, "Table Map has been cleared!")
+}
+
+func (tm *Table_Map) HandlePlayerCount(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("tableID")
+	pc := r.URL.Query().Get("passcode")
+
+	t_id := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map := *tm
+	p_count := len(t_map[t_id].Players)
+	tmpl, _ := template.New("count").Parse(strconv.Itoa(p_count))
 	tmpl.Execute(w, nil)
 }
+
+func (tm *Table_Map) HandleStartGame(w http.ResponseWriter, r *http.Request) {
+	// un := r.FormValue("username")
+	id := r.FormValue("tableID")
+	pc := r.FormValue("passcode")
+
+	t_id := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map := *tm
+	t_cards := t_map[t_id].Cards
+
+	data := templates.Game_Table{Cards: t_cards}
+	tmpl, _ := template.ParseFiles("templates/game-table.html")
+	tmpl.Execute(w, data)
+}
+
+// func (tm *Table_Map) ChangeActiveRound(t_id Table_Identifiers, roundID int) {
+// 	t_map := *tm
+// 	table := t_map[t_id]
+
+// 	table.ActiveRoundID = roundID
+
+// 	t_map[t_id] = table
+// }

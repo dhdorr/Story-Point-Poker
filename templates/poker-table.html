@@ -4,8 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Story Point Poker 3 - Table</title>
+    <script src="/static/scripts/fixi-0.6.5.js"></script>
+    <script src="/static/scripts/ext-fixi.js"></script>
 </head>
 <body>
     <h2>Poker Table!</h2>
+    <div id="waiting" class="waiting-wrapper">
+        <form id="playerCountPoll" fx-action="/player-count" fx-swap="innerHTML" fx-trigger="poll" fx-target="#playerCount" ext-fx-poll-interval="300">
+            <input type="hidden" name="tableID" value="testID">
+            <input type="hidden" name="passcode" value="testPC">
+            <input type="hidden" name="username" value="testUN2">
+        </form>
+        <span id="playerCount">{{.PlayerCount}}</span> / <span>{{.MaxPlayers}}</span>
+        <h3>Waiting for players...</h3>
+        <form>
+            <input type="hidden" name="tableID" value="testID">
+            <input type="hidden" name="passcode" value="testPC">
+            <input type="hidden" name="username" value="testUN2">
+            <button onclick="TestMe(this)" fx-action="/start-game" fx-method="post" fx-trigger="click" fx-swap="outerHTML" fx-target="#waiting"> Start Round </button>
+        </form>
+    </div>
 </body>
+<script src="/static/scripts/waiting.js"></script>
 </html>

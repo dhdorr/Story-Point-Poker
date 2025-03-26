@@ -22,6 +22,9 @@ func main() {
 	http.HandleFunc("GET /create-table-menu", handlers.HandleCreateTableMenu)
 	http.HandleFunc("POST /join-table", tm.HandleJoinTable)
 	http.HandleFunc("POST /create-table", tm.HandleCreateTable)
+	http.HandleFunc("DELETE /delete-tables", tm.HandleDeleteTables)
+	http.HandleFunc("GET /player-count", tm.HandlePlayerCount)
+	http.HandleFunc("POST /start-game", tm.HandleStartGame)
 
 	// *******************
 

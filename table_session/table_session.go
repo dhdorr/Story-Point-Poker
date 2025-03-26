@@ -7,11 +7,12 @@ import (
 	"time"
 )
 
-type TableState int
+type TableState int // accept players, closed to new players, game is done
 
 const (
 	StateOpen TableState = iota
 	StateClosed
+	StateDone
 )
 
 type Settings struct {
