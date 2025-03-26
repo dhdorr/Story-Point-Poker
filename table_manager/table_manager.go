@@ -53,7 +53,13 @@ func (tm *Table_Map) HandleJoinTable(w http.ResponseWriter, r *http.Request) {
 	}
 	t_map[t_id] = table
 
-	data := templates.Waiting{MaxPlayers: t_map[t_id].Settings.MaxPlayers, PlayerCount: len(t_map[t_id].Players)}
+	data := templates.Waiting{
+		MaxPlayers:  t_map[t_id].Settings.MaxPlayers,
+		PlayerCount: len(t_map[t_id].Players),
+		TableID:     id,
+		Passcode:    pc,
+		Username:    un,
+	}
 	tmpl := template.Must(template.ParseFiles("templates/poker-table.html"))
 	tmpl.Execute(w, data)
 }
@@ -154,7 +160,13 @@ func (tm *Table_Map) HandleCreateTable(w http.ResponseWriter, r *http.Request) {
 
 	t_map[t_id] = new_table
 
-	data := templates.Waiting{MaxPlayers: mp, PlayerCount: len(pl)}
+	data := templates.Waiting{
+		MaxPlayers:  mp,
+		PlayerCount: len(pl),
+		TableID:     id,
+		Passcode:    pc,
+		Username:    un,
+	}
 	tmpl := template.Must(template.ParseFiles("templates/poker-table.html"))
 	tmpl.Execute(w, data)
 }
@@ -181,15 +193,17 @@ func (tm *Table_Map) HandlePlayerCount(w http.ResponseWriter, r *http.Request) {
 }
 
 func (tm *Table_Map) HandleStartGame(w http.ResponseWriter, r *http.Request) {
-	// un := r.FormValue("username")
+	un := r.FormValue("username")
 	id := r.FormValue("tableID")
 	pc := r.FormValue("passcode")
+
+	fmt.Printf("id: %v, pc: %v, un: %v\n", id, pc, un)
 
 	t_id := Table_Identifiers{TableID: id, Passcode: pc}
 	t_map := *tm
 	t_cards := t_map[t_id].Cards
 
-	data := templates.Game_Table{Cards: t_cards}
+	data := templates.Game_Table{Cards: t_cards, TableID: id, Passcode: pc, Username: un}
 	tmpl, _ := template.ParseFiles("templates/game-table.html")
 	tmpl.Execute(w, data)
 }
