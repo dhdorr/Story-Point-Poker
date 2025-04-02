@@ -53,13 +53,17 @@ func (tm *Table_Map) HandleJoinTable(w http.ResponseWriter, r *http.Request) {
 	}
 	t_map[t_id] = table
 
+	d_style := template.CSS("display: none;")
 	data := templates.Waiting{
 		MaxPlayers:  t_map[t_id].Settings.MaxPlayers,
 		PlayerCount: len(t_map[t_id].Players),
 		TableID:     id,
 		Passcode:    pc,
 		Username:    un,
+		Ready:       false,
+		Style:       d_style,
 	}
+	fmt.Printf("data: %v\n", data)
 	tmpl := template.Must(template.ParseFiles("templates/poker-table.html"))
 	tmpl.Execute(w, data)
 }
@@ -166,6 +170,7 @@ func (tm *Table_Map) HandleCreateTable(w http.ResponseWriter, r *http.Request) {
 		TableID:     id,
 		Passcode:    pc,
 		Username:    un,
+		Ready:       false,
 	}
 	tmpl := template.Must(template.ParseFiles("templates/poker-table.html"))
 	tmpl.Execute(w, data)
@@ -181,15 +186,34 @@ func (tm *Table_Map) HandleDeleteTables(w http.ResponseWriter, r *http.Request) 
 	fmt.Fprintf(w, "Table Map has been cleared!")
 }
 
-func (tm *Table_Map) HandlePlayerCount(w http.ResponseWriter, r *http.Request) {
+func (tm *Table_Map) HandleWaitingUpdate(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("tableID")
 	pc := r.URL.Query().Get("passcode")
+	un := r.URL.Query().Get("username")
 
 	t_id := Table_Identifiers{TableID: id, Passcode: pc}
 	t_map := *tm
 	p_count := len(t_map[t_id].Players)
-	tmpl, _ := template.New("count").Parse(strconv.Itoa(p_count))
-	tmpl.Execute(w, nil)
+	p_max := t_map[t_id].Settings.MaxPlayers
+	ready := false
+
+	fmt.Println(t_map[t_id].Rounds[t_map[t_id].ActiveRoundID].Phase)
+	if t_map[t_id].Rounds[t_map[t_id].ActiveRoundID].Phase == round.PhaseStarted {
+		fmt.Println("round is set to started...")
+		ready = true
+	}
+
+	data := templates.Waiting{
+		MaxPlayers:  p_max,
+		PlayerCount: p_count,
+		TableID:     id,
+		Passcode:    pc,
+		Username:    un,
+		Ready:       ready,
+	}
+
+	tmpl, _ := template.ParseFiles("templates/waiting-update.html")
+	tmpl.Execute(w, data)
 }
 
 func (tm *Table_Map) HandleStartGame(w http.ResponseWriter, r *http.Request) {
@@ -203,7 +227,25 @@ func (tm *Table_Map) HandleStartGame(w http.ResponseWriter, r *http.Request) {
 	t_map := *tm
 	t_cards := t_map[t_id].Cards
 
-	data := templates.Game_Table{Cards: t_cards, TableID: id, Passcode: pc, Username: un}
+	if t_map[t_id].Admin.Username == un {
+		table := t_map[t_id]
+		t_rounds := table.Rounds
+		t_r := t_rounds[table.ActiveRoundID]
+		t_r.Phase = round.PhaseStarted // set round phase to started
+		t_rounds[table.ActiveRoundID] = t_r
+		table.Rounds = t_rounds
+		t_map[t_id] = table
+	}
+
+	fmt.Printf("t_map: %v\n", t_map)
+
+	data := templates.Game_Table{
+		Cards:    t_cards,
+		TableID:  id,
+		Passcode: pc,
+		Username: un,
+	}
+
 	tmpl, _ := template.ParseFiles("templates/game-table.html")
 	tmpl.Execute(w, data)
 }

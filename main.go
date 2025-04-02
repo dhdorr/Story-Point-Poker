@@ -23,7 +23,7 @@ func main() {
 	http.HandleFunc("POST /join-table", tm.HandleJoinTable)
 	http.HandleFunc("POST /create-table", tm.HandleCreateTable)
 	http.HandleFunc("DELETE /delete-tables", tm.HandleDeleteTables)
-	http.HandleFunc("GET /player-count", tm.HandlePlayerCount)
+	http.HandleFunc("GET /waiting-update", tm.HandleWaitingUpdate)
 	http.HandleFunc("POST /start-game", tm.HandleStartGame)
 	http.HandleFunc("POST /vote", tm.HandleVote)
 

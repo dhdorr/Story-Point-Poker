@@ -1,6 +1,9 @@
 package templates
 
-import "dhdorr/story-point-poker/card"
+import (
+	"dhdorr/story-point-poker/card"
+	"html/template"
+)
 
 type Waiting struct {
 	MaxPlayers  int
@@ -8,6 +11,8 @@ type Waiting struct {
 	Username    string
 	TableID     string
 	Passcode    string
+	Ready       bool
+	Style       template.CSS
 }
 
 type Game_Table struct {

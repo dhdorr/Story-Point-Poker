@@ -1,17 +1,22 @@
-// let myInterval = setInterval(printMe, 1000)
-// let count = 0;
+let ready = document.getElementById("isReady");
+let startBtn = document.getElementById("startGameBtn");
 
-// function TestMe(el) {
-//     clearInterval(myInterval);
-// }
+let ready_interval = setInterval(CheckIfReady, 1000);
 
-// function printMe() {
-//     count += 1;
-//     console.log("doin stuff...", count);
-// }
+function CheckIfReady() {
+    ready = document.getElementById("isReady");
+    console.log("is ready? ", ready);
+    if (ready.getAttribute("value") == "1" || ready.getAttribute("value") == "true" ) {
+        console.log("ready to start the game!");
+        startBtn.click();
+        // clearInterval(ready_interval);
+        // let pc = document.getElementById("playerCountPoll");
+        // clearInterval(pc.__fixi.pollInterval);
+    }
+}
 
-function TestMe(el) {
+function TestMe() {
+    clearInterval(ready_interval);
     let pc = document.getElementById("playerCountPoll");
-
     clearInterval(pc.__fixi.pollInterval);
 }
