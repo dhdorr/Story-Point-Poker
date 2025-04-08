@@ -21,3 +21,16 @@ type Game_Table struct {
 	TableID  string
 	Passcode string
 }
+
+type Game_Update struct {
+	IsDone bool
+}
+
+type Results_Card struct {
+	Value int
+	Votes int
+}
+
+type Round_Results struct {
+	Cards []Results_Card
+}

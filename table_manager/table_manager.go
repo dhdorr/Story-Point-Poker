@@ -216,6 +216,31 @@ func (tm *Table_Map) HandleWaitingUpdate(w http.ResponseWriter, r *http.Request)
 	tmpl.Execute(w, data)
 }
 
+func (tm *Table_Map) HandleGameUpdate(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("tableID")
+	pc := r.URL.Query().Get("passcode")
+	// un := r.URL.Query().Get("username")
+
+	t_id := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map := *tm
+
+	table := t_map[t_id]
+	t_rounds := table.Rounds
+	t_r := t_rounds[table.ActiveRoundID]
+
+	is_done := false
+	if t_r.Phase == round.PhaseFinished {
+		is_done = true
+	}
+
+	data := templates.Game_Update{
+		IsDone: is_done,
+	}
+
+	tmpl, _ := template.ParseFiles("templates/game-update.html")
+	tmpl.Execute(w, data)
+}
+
 func (tm *Table_Map) HandleStartGame(w http.ResponseWriter, r *http.Request) {
 	un := r.FormValue("username")
 	id := r.FormValue("tableID")
@@ -231,10 +256,25 @@ func (tm *Table_Map) HandleStartGame(w http.ResponseWriter, r *http.Request) {
 		table := t_map[t_id]
 		t_rounds := table.Rounds
 		t_r := t_rounds[table.ActiveRoundID]
-		t_r.Phase = round.PhaseStarted // set round phase to started
+		t_r.Phase = round.PhaseStarted // set round phase to Started
 		t_rounds[table.ActiveRoundID] = t_r
 		table.Rounds = t_rounds
 		t_map[t_id] = table
+
+		timer1 := time.NewTimer(30 * time.Second)
+		go func(tm1 *Table_Map) {
+			<-timer1.C
+
+			t_id1 := Table_Identifiers{TableID: id, Passcode: pc}
+			t_map1 := *tm1
+			table1 := t_map1[t_id1]
+			t_rounds1 := table1.Rounds
+			t_r1 := t_rounds1[table1.ActiveRoundID]
+			t_r1.Phase = round.PhaseFinished // set round phase to Ended
+			t_rounds1[table1.ActiveRoundID] = t_r1
+			table1.Rounds = t_rounds1
+			t_map1[t_id1] = table1
+		}(tm)
 	}
 
 	fmt.Printf("t_map: %v\n", t_map)
@@ -293,6 +333,38 @@ func (tm *Table_Map) HandleVote(w http.ResponseWriter, r *http.Request) {
 
 	tmpl, _ := template.New("count").Parse("picked")
 	tmpl.Execute(w, nil)
+}
+
+func (tm *Table_Map) HandleRoundResults(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("tableID")
+	pc := r.URL.Query().Get("passcode")
+	// un := r.URL.Query().Get("username")
+
+	t_id := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map := *tm
+	table := t_map[t_id]
+
+	t_rounds := table.Rounds
+	t_r := t_rounds[table.ActiveRoundID]
+
+	r_cards := make([]templates.Results_Card, 0, len(table.Cards))
+	for _, v := range table.Cards {
+		temp := templates.Results_Card{
+			Value: v.Value,
+		}
+		r_cards = append(r_cards, temp)
+	}
+
+	for j, v := range r_cards {
+		for _, vt := range t_r.Votes {
+			if vt.Card.Value == v.Value {
+				r_cards[j].Votes += 1
+			}
+		}
+	}
+
+	tmpl, _ := template.New("count").Parse("picked")
+	tmpl.Execute(w, r_cards)
 }
 
 // func (tm *Table_Map) ChangeActiveRound(t_id Table_Identifiers, roundID int) {

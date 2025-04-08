@@ -26,6 +26,8 @@ func main() {
 	http.HandleFunc("GET /waiting-update", tm.HandleWaitingUpdate)
 	http.HandleFunc("POST /start-game", tm.HandleStartGame)
 	http.HandleFunc("POST /vote", tm.HandleVote)
+	http.HandleFunc("GET /game-update", tm.HandleGameUpdate)
+	http.HandleFunc("GET /roundResults", tm.HandleRoundResults)
 
 	// *******************
 
