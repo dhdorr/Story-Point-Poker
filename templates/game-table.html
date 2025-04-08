@@ -1,7 +1,8 @@
+{{$t_id := .TableID}}
+{{$pc := .Passcode}}
+{{$un := .Username}}
 <div id="gameBoard">
-    {{$t_id := .TableID}}
-    {{$pc := .Passcode}}
-    {{$un := .Username}}
+    
     {{range .Cards}}
     <form>
         <input type="hidden" name="tableID" value="{{$t_id}}">
@@ -11,19 +12,19 @@
         <button fx-action="/vote" fx-method="post" fx-trigger="click" fx-swap="className">{{.Value}}</button>
     </form>
     {{end}}
+    <form id="gameUpdatePoll" fx-action="/game-update" fx-swap="innerHTML" fx-trigger="poll" fx-target="#test" ext-fx-poll-interval="300">
+        <input type="hidden" name="tableID" value="{{$t_id}}">
+        <input type="hidden" name="passcode" value="{{$pc}}">
+        <input type="hidden" name="username" value="{{$un}}">
+    </form>
+    <div id="test">
+        <data id="gameOver" value="{{.IsDone}}"></data>
+    </div>
+    
+    <form id="getResults" style="display: none;" fx-action="/roundResults" fx-swap="outerHTML" fx-trigger="click" fx-target="#gameBoard">
+        <input type="hidden" name="tableID" value="{{$t_id}}">
+        <input type="hidden" name="passcode" value="{{$pc}}">
+        <input type="hidden" name="username" value="{{$un}}">
+        <button id="resultsBtn" type="submit"></button>
+    </form>
 </div>
-<form id="gameUpdatePoll" fx-action="/game-update" fx-swap="innerHTML" fx-trigger="poll" fx-target="#test" ext-fx-poll-interval="300">
-    <input type="hidden" name="tableID" value="{{$t_id}}">
-    <input type="hidden" name="passcode" value="{{$pc}}">
-    <input type="hidden" name="username" value="{{$un}}">
-</form>
-<div id="test">
-    <data id="gameOver" value="{{.IsDone}}"></data>
-</div>
-
-<form id="getResults" style="display: none;" fx-action="/roundResults" fx-swap="outerHTML" fx-trigger="click" fx-target="#gameBoard">
-    <input type="hidden" name="tableID" value="{{$t_id}}">
-    <input type="hidden" name="passcode" value="{{$pc}}">
-    <input type="hidden" name="username" value="{{$un}}">
-    <button id="resultsBtn" type="submit"></button>
-</form>

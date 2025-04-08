@@ -20,6 +20,7 @@ type Game_Table struct {
 	Username string
 	TableID  string
 	Passcode string
+	IsDone   bool
 }
 
 type Game_Update struct {

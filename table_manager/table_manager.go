@@ -284,6 +284,7 @@ func (tm *Table_Map) HandleStartGame(w http.ResponseWriter, r *http.Request) {
 		TableID:  id,
 		Passcode: pc,
 		Username: un,
+		IsDone:   false,
 	}
 
 	tmpl, _ := template.ParseFiles("templates/game-table.html")
@@ -363,8 +364,12 @@ func (tm *Table_Map) HandleRoundResults(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
-	tmpl, _ := template.New("count").Parse("picked")
-	tmpl.Execute(w, r_cards)
+	data := templates.Round_Results{
+		Cards: r_cards,
+	}
+
+	tmpl, _ := template.ParseFiles("templates/results.html")
+	tmpl.Execute(w, data)
 }
 
 // func (tm *Table_Map) ChangeActiveRound(t_id Table_Identifiers, roundID int) {
