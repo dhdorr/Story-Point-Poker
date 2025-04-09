@@ -28,6 +28,8 @@ func main() {
 	http.HandleFunc("POST /vote", tm.HandleVote)
 	http.HandleFunc("GET /game-update", tm.HandleGameUpdate)
 	http.HandleFunc("GET /roundResults", tm.HandleRoundResults)
+	http.HandleFunc("GET /next-round-update", tm.HandleNextRoundUpdate)
+	http.HandleFunc("POST /proceed-next-round", tm.HandleProceedNextRound)
 
 	// *******************
 

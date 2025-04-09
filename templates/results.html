@@ -1,3 +1,6 @@
+{{$t_id := .TableID}}
+{{$pc := .Passcode}}
+{{$un := .Username}}
 <div id="results" class="results-page">
     {{range .Cards}}
     <div id="card" class="result-card">
@@ -5,4 +8,20 @@
         <p>Number of Votes: {{.Votes}}</p>
     </div>
     {{end}}
+
+    <form id="nextRoundPoll" fx-action="/next-round-update" fx-swap="innerHTML" fx-trigger="poll" fx-target="#testR" ext-fx-poll-interval="300">
+        <input type="hidden" name="tableID" value="{{$t_id}}">
+        <input type="hidden" name="passcode" value="{{$pc}}">
+        <input type="hidden" name="username" value="{{$un}}">
+    </form>
+
+    <form>
+        <input type="hidden" name="tableID" value="{{$t_id}}">
+        <input type="hidden" name="passcode" value="{{$pc}}">
+        <input type="hidden" name="username" value="{{$un}}">
+        <button id="nextRoundBtn" onclick="ProceedToNextRound()" fx-action="/proceed-next-round" fx-method="post" fx-trigger="click" fx-swap="outerHTML" fx-target="#results"> Proceed to Next Round </button>
+    </form>
+    <div id="testR">
+        <data id="nextRound" value="{{.IsDone}}"></data>
+    </div>
 </div>

@@ -33,5 +33,9 @@ type Results_Card struct {
 }
 
 type Round_Results struct {
-	Cards []Results_Card
+	Cards    []Results_Card
+	Style    template.CSS
+	Username string
+	TableID  string
+	Passcode string
 }

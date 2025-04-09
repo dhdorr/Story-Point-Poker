@@ -339,7 +339,7 @@ func (tm *Table_Map) HandleVote(w http.ResponseWriter, r *http.Request) {
 func (tm *Table_Map) HandleRoundResults(w http.ResponseWriter, r *http.Request) {
 	id := r.URL.Query().Get("tableID")
 	pc := r.URL.Query().Get("passcode")
-	// un := r.URL.Query().Get("username")
+	un := r.URL.Query().Get("username")
 
 	t_id := Table_Identifiers{TableID: id, Passcode: pc}
 	t_map := *tm
@@ -364,19 +364,97 @@ func (tm *Table_Map) HandleRoundResults(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	d_style := template.CSS("display: none;")
 	data := templates.Round_Results{
-		Cards: r_cards,
+		Cards:    r_cards,
+		Style:    d_style,
+		TableID:  id,
+		Passcode: pc,
+		Username: un,
 	}
 
 	tmpl, _ := template.ParseFiles("templates/results.html")
 	tmpl.Execute(w, data)
 }
 
-// func (tm *Table_Map) ChangeActiveRound(t_id Table_Identifiers, roundID int) {
-// 	t_map := *tm
-// 	table := t_map[t_id]
+func (tm *Table_Map) HandleNextRoundUpdate(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("tableID")
+	pc := r.URL.Query().Get("passcode")
+	// un := r.URL.Query().Get("username")
 
-// 	table.ActiveRoundID = roundID
+	t_id := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map := *tm
+	table := t_map[t_id]
 
-// 	t_map[t_id] = table
-// }
+	t_rounds := table.Rounds
+	t_r := t_rounds[table.ActiveRoundID]
+
+	is_done := false
+	if t_r.Phase == round.PhaseStarted {
+		is_done = true
+	}
+
+	data := templates.Game_Update{
+		IsDone: is_done,
+	}
+
+	tmpl, _ := template.ParseFiles("templates/results-update.html")
+	tmpl.Execute(w, data)
+}
+
+func (tm *Table_Map) HandleProceedNextRound(w http.ResponseWriter, r *http.Request) {
+	un := r.FormValue("username")
+	id := r.FormValue("tableID")
+	pc := r.FormValue("passcode")
+
+	fmt.Printf("id: %v, pc: %v, un: %v\n", id, pc, un)
+
+	t_id := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map := *tm
+	t_cards := t_map[t_id].Cards
+
+	if t_map[t_id].Admin.Username == un {
+		table := t_map[t_id]
+		ar := table.ActiveRoundID
+		// settings := table.Settings
+		// n_r := settings.NumRounds
+		ar += 1
+		table.ActiveRoundID = ar
+		t_rounds := table.Rounds
+		t_r := t_rounds[table.ActiveRoundID]
+		t_r.Phase = round.PhaseStarted // set round phase to Started
+		t_rounds[table.ActiveRoundID] = t_r
+		table.Rounds = t_rounds
+		t_map[t_id] = table
+
+		timer1 := time.NewTimer(30 * time.Second)
+		go startTimer(timer1, t_id, tm)
+	}
+
+	fmt.Printf("t_map: %v\n", t_map)
+
+	data := templates.Game_Table{
+		Cards:    t_cards,
+		TableID:  id,
+		Passcode: pc,
+		Username: un,
+		IsDone:   false,
+	}
+
+	tmpl, _ := template.ParseFiles("templates/game-table.html")
+	tmpl.Execute(w, data)
+}
+
+func startTimer(timer1 *time.Timer, t_id1 Table_Identifiers, tm1 *Table_Map) {
+	<-timer1.C
+	// t_id1 := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map1 := *tm1
+	table1 := t_map1[t_id1]
+	t_rounds1 := table1.Rounds
+	t_r1 := t_rounds1[table1.ActiveRoundID]
+	t_r1.Phase = round.PhaseFinished // set round phase to Ended
+	t_rounds1[table1.ActiveRoundID] = t_r1
+	table1.Rounds = t_rounds1
+	t_map1[t_id1] = table1
+
+}
