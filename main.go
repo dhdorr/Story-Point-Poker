@@ -30,6 +30,7 @@ func main() {
 	http.HandleFunc("GET /roundResults", tm.HandleRoundResults)
 	http.HandleFunc("GET /next-round-update", tm.HandleNextRoundUpdate)
 	http.HandleFunc("POST /proceed-next-round", tm.HandleProceedNextRound)
+	http.HandleFunc("GET /proceed-end-page", tm.HandleProceedEndPage)
 
 	// *******************
 

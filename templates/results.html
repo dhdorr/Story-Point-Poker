@@ -14,13 +14,21 @@
         <input type="hidden" name="passcode" value="{{$pc}}">
         <input type="hidden" name="username" value="{{$un}}">
     </form>
-
+    {{if .IsValid}}
     <form>
         <input type="hidden" name="tableID" value="{{$t_id}}">
         <input type="hidden" name="passcode" value="{{$pc}}">
         <input type="hidden" name="username" value="{{$un}}">
         <button id="nextRoundBtn" onclick="ProceedToNextRound()" fx-action="/proceed-next-round" fx-method="post" fx-trigger="click" fx-swap="outerHTML" fx-target="#results"> Proceed to Next Round </button>
     </form>
+    {{else}}
+    <form action="/proceed-end-page" method="get">
+        <input type="hidden" name="tableID" value="{{$t_id}}">
+        <input type="hidden" name="passcode" value="{{$pc}}">
+        <input type="hidden" name="username" value="{{$un}}">
+        <button id="nextRoundBtn"> Proceed to End Page </button>
+    </form>
+    {{end}}
     <div id="testR">
         <data id="nextRound" value="{{.IsDone}}"></data>
     </div>

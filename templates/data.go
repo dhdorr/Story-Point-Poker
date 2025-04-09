@@ -38,4 +38,5 @@ type Round_Results struct {
 	Username string
 	TableID  string
 	Passcode string
+	IsValid  bool
 }

@@ -364,6 +364,11 @@ func (tm *Table_Map) HandleRoundResults(w http.ResponseWriter, r *http.Request) 
 		}
 	}
 
+	is_valid := true
+	if table.ActiveRoundID+1 >= table.Settings.NumRounds {
+		is_valid = false
+	}
+
 	d_style := template.CSS("display: none;")
 	data := templates.Round_Results{
 		Cards:    r_cards,
@@ -371,6 +376,7 @@ func (tm *Table_Map) HandleRoundResults(w http.ResponseWriter, r *http.Request) 
 		TableID:  id,
 		Passcode: pc,
 		Username: un,
+		IsValid:  is_valid,
 	}
 
 	tmpl, _ := template.ParseFiles("templates/results.html")
@@ -419,6 +425,7 @@ func (tm *Table_Map) HandleProceedNextRound(w http.ResponseWriter, r *http.Reque
 		// settings := table.Settings
 		// n_r := settings.NumRounds
 		ar += 1
+		// if ar > numRounds -> render end page
 		table.ActiveRoundID = ar
 		t_rounds := table.Rounds
 		t_r := t_rounds[table.ActiveRoundID]
@@ -457,4 +464,29 @@ func startTimer(timer1 *time.Timer, t_id1 Table_Identifiers, tm1 *Table_Map) {
 	table1.Rounds = t_rounds1
 	t_map1[t_id1] = table1
 
+}
+
+func (tm *Table_Map) HandleProceedEndPage(w http.ResponseWriter, r *http.Request) {
+	id := r.URL.Query().Get("tableID")
+	pc := r.URL.Query().Get("passcode")
+	// un := r.URL.Query().Get("username")
+
+	t_id := Table_Identifiers{TableID: id, Passcode: pc}
+	t_map := *tm
+	table := t_map[t_id]
+
+	t_rounds := table.Rounds
+	t_r := t_rounds[table.ActiveRoundID]
+
+	is_done := false
+	if t_r.Phase == round.PhaseStarted {
+		is_done = true
+	}
+
+	data := templates.Game_Update{
+		IsDone: is_done,
+	}
+
+	tmpl, _ := template.ParseFiles("templates/end-page.html")
+	tmpl.Execute(w, data)
 }
