@@ -1,3 +1,3 @@
-module dhdorr/story-point-poker
+module github.com/dhdorr/story-point-poker
 
-go 1.24.0
+go 1.25.1
