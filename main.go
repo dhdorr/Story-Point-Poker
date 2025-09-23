@@ -19,18 +19,8 @@ func (poker_table_db POKER_TABLE_DB) CheckIfPokerTableExists(key string) bool {
 	return ok
 }
 
-func CreateNewPokerTable() Models.POKER_TABLE {
-	poker_table := Models.CreatePokerTable()
-
-	return poker_table
-}
-
 func (poker_table_db POKER_TABLE_DB) RegisterPokerTable(key string, poker_table Models.POKER_TABLE) {
 	poker_table_db.poker_tables[key] = poker_table
-}
-
-func CreateNewPlayer(req Models.PLAYER_REQUEST_INTERFACE) Models.PLAYER {
-	return req.GeneratePlayer()
 }
 
 func (poker_table_db POKER_TABLE_DB) ProcessCreateNewPokerTableRequest(req Models.PLAYER_REQUEST_INTERFACE) {
@@ -40,28 +30,27 @@ func (poker_table_db POKER_TABLE_DB) ProcessCreateNewPokerTableRequest(req Model
 		return
 	}
 
-	poker_table := CreateNewPokerTable()
-	config := req.GenerateConfig()
-	poker_table.Config = config
+	poker_table := GenerateNewPokerTable(req)
 
 	poker_table_db.RegisterPokerTable(key, poker_table)
 
-	player := CreateNewPlayer(req)
+	player := GenerateNewPlayer(req)
 	poker_table.RegisterPlayer(player)
 
 	poker_table_db.poker_tables[key] = poker_table
 }
 
-func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.CREATE_POKER_TABLE_REQUEST) {
-	key := poker_table_db.Generate_Key(req.Table_name, req.Table_passcode)
+func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.PLAYER_REQUEST_INTERFACE) {
+	key := req.GenerateKey()
 	ok := poker_table_db.CheckIfPokerTableExists(key)
 	if !ok {
 		fmt.Printf("No poker table with key: %s exists!", key)
 		return
 	}
 
-	player := CreateNewPlayer(req)
-	poker_table := poker_table_db.poker_tables[req.GenerateKey()]
+	poker_table := poker_table_db.poker_tables[key]
+
+	player := GenerateNewPlayer(req)
 	poker_table.RegisterPlayer(player)
 
 	poker_table_db.poker_tables[key] = poker_table
@@ -70,6 +59,24 @@ func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.CRE
 type poker_table_interface interface {
 	TestCreatePokerTable()
 	TestJoinPokerTable()
+}
+
+func GenerateNewPokerTable(req Models.PLAYER_REQUEST_INTERFACE) Models.POKER_TABLE {
+	poker_table := CreateNewPokerTable()
+	config := req.GenerateConfig()
+	poker_table.Config = config
+
+	return poker_table
+}
+
+func CreateNewPokerTable() Models.POKER_TABLE {
+	poker_table := Models.CreatePokerTable()
+
+	return poker_table
+}
+
+func GenerateNewPlayer(req Models.PLAYER_REQUEST_INTERFACE) Models.PLAYER {
+	return req.GeneratePlayer()
 }
 
 func main() {
@@ -100,7 +107,7 @@ func (poker_table_db POKER_TABLE_DB) TestCreatePokerTable() {
 }
 
 func (poker_table_db POKER_TABLE_DB) TestJoinPokerTable() {
-	join_poker_table_request := Models.CREATE_POKER_TABLE_REQUEST{
+	join_poker_table_request := Models.JOIN_POKER_TABLE_REQUEST{
 		Table_name:     "test",
 		Table_passcode: "test",
 		Player_name:    "apollo",
