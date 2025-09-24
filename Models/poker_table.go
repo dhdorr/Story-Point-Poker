@@ -60,6 +60,11 @@ func InitializeNewPokerTableFromRequest(req CREATE_POKER_TABLE_REQUEST) POKER_TA
 	return poker_table
 }
 
+func (poker_table *POKER_TABLE) InitializeNewPlayerFromRequest(req JOIN_POKER_TABLE_REQUEST) {
+	player := CreatePlayer(req.Player_name)
+	poker_table.Players_DB.RegisterPlayer(player)
+}
+
 func createConfig(req CREATE_POKER_TABLE_REQUEST) CONFIG_POKER_TABLE {
 	config := CONFIG_POKER_TABLE{
 		Table_name:                  req.Table_name,

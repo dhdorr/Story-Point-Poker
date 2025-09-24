@@ -51,9 +51,11 @@ func (poker_table_db POKER_TABLE_DB) ProcessConfigureRoundRequest(req Models.CON
 	}
 
 	round = round.ApplyConfigurationFromRequest(req)
+	round.Round_State = round.TransitionRoundState()
 
 	poker_table.Rounds_DB.Rounds[poker_table.CurrentRound] = round
 
+	// Respond with game table page
 }
 
 func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.JOIN_POKER_TABLE_REQUEST) {
@@ -64,24 +66,11 @@ func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.JOI
 	}
 
 	poker_table := poker_table_db.poker_tables[key]
-
-	player := Models.PLAYER{}
-	poker_table.RegisterPlayer(player)
+	poker_table.InitializeNewPlayerFromRequest(req)
 
 	poker_table_db.poker_tables[key] = poker_table
-}
 
-func (poker_table_db POKER_TABLE_DB) ProcessTransitionTableStateRequest(req Models.TRANSITION_TABLE_STATE_REQUEST) {
-	key := req.GenerateKey()
-	if !poker_table_db.CheckIfPokerTableExists(key) {
-		fmt.Printf("No poker table with key: %s exists!", key)
-		return
-	}
-
-	poker_table := poker_table_db.poker_tables[key]
-	state := poker_table.TransitionPokerTableState()
-	poker_table.PokerTableState = state
-	poker_table_db.poker_tables[key] = poker_table
+	// Respond with game table page
 }
 
 func main() {
@@ -97,18 +86,13 @@ func main() {
 type poker_table_test_interface interface {
 	TestCreatePokerTable()
 	TestConfigureFirstRound()
-	TestConfigureSecondRound()
-	TestTransitionPokerTableState()
 	TestJoinPokerTable()
 }
 
 func BeginTests(pt poker_table_test_interface) {
 	pt.TestCreatePokerTable()
 	pt.TestConfigureFirstRound()
-	// pt.TestTransitionPokerTableState()
-	// pt.TestJoinPokerTable()
-	// pt.TestTransitionPokerTableState()
-	// pt.TestConfigureSecondRound()
+	pt.TestJoinPokerTable()
 }
 
 func (poker_table_db POKER_TABLE_DB) TestCreatePokerTable() {
@@ -138,21 +122,6 @@ func (poker_table_db POKER_TABLE_DB) TestConfigureFirstRound() {
 	fmt.Printf("ROUNDS (%v): %v\n", len(poker_table_db.poker_tables["test:test"].Rounds_DB.Rounds), poker_table_db.poker_tables["test:test"].Rounds_DB)
 }
 
-func (poker_table_db POKER_TABLE_DB) TestConfigureSecondRound() {
-	configure_round_request := Models.CONFIGURE_ROUND_REQUEST{
-		Table_name:        "test",
-		Table_passcode:    "test",
-		Round_Title:       "title2",
-		Round_Description: "description2",
-		Card_Type:         0,
-		Number_Of_Cards:   8,
-		Time_Limit:        10,
-	}
-
-	poker_table_db.ProcessConfigureRoundRequest(configure_round_request)
-	fmt.Printf("ROUNDS (%v): %v\n", len(poker_table_db.poker_tables["test:test"].Rounds_DB.Rounds), poker_table_db.poker_tables["test:test"].Rounds_DB)
-}
-
 func (poker_table_db POKER_TABLE_DB) TestJoinPokerTable() {
 	join_poker_table_request := Models.JOIN_POKER_TABLE_REQUEST{
 		Table_name:     "test",
@@ -162,18 +131,7 @@ func (poker_table_db POKER_TABLE_DB) TestJoinPokerTable() {
 
 	poker_table_db.ProcessJoinPokerTableRequest(join_poker_table_request)
 
-	fmt.Printf("Poker Tables: %v\n", poker_table_db.poker_tables)
-}
-
-func (poker_table_db POKER_TABLE_DB) TestTransitionPokerTableState() {
-	transition_poker_table_state_request := Models.TRANSITION_TABLE_STATE_REQUEST{
-		Table_name:     "test",
-		Table_passcode: "test",
-	}
-
-	poker_table_db.ProcessTransitionTableStateRequest(transition_poker_table_state_request)
-
-	fmt.Printf("STATE: %v\n", poker_table_db.poker_tables["test:test"].PokerTableState)
+	fmt.Printf("Players: %v\n", poker_table_db.poker_tables["test:test"].Players_DB.Players)
 }
 
 // END TESTING
