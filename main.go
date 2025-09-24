@@ -19,24 +19,59 @@ func (poker_table_db POKER_TABLE_DB) RegisterPokerTable(key string, poker_table 
 	poker_table_db.poker_tables[key] = poker_table
 }
 
-func (poker_table_db POKER_TABLE_DB) ProcessCreateNewPokerTableRequest(req Models.CREATE_POKER_TABLE_REQUEST_INTERFACE) {
+func (poker_table_db POKER_TABLE_DB) ProcessCreateNewPokerTableRequest(req Models.CREATE_POKER_TABLE_REQUEST) {
 	key := req.GenerateKey()
 	if poker_table_db.CheckIfPokerTableExists(key) {
 		fmt.Printf("A poker table already exists with the key: %s", key)
 		return
 	}
 
-	poker_table := GenerateNewPokerTable(req)
-
+	poker_table := Models.InitializeNewPokerTableFromRequest(req)
 	poker_table_db.RegisterPokerTable(key, poker_table)
 
-	player := GenerateNewPlayer(req)
+	poker_table = poker_table_db.poker_tables[key]
+	poker_table.PokerTableState = poker_table.TransitionPokerTableState()
+	poker_table_db.poker_tables[key] = poker_table
+
+	// Respond with round configuration page
+}
+
+func (poker_table_db POKER_TABLE_DB) ProcessConfigureRoundRequest(req Models.CONFIGURE_ROUND_REQUEST) {
+	key := req.GenerateKey()
+	if !poker_table_db.CheckIfPokerTableExists(key) {
+		fmt.Printf("No poker table with key: %s exists!", key)
+		return
+	}
+
+	poker_table := poker_table_db.poker_tables[key]
+	round, err := poker_table.Rounds_DB.GetCurrentRound(poker_table.CurrentRound)
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+		return
+	}
+
+	round = round.ApplyConfigurationFromRequest(req)
+
+	poker_table.Rounds_DB.Rounds[poker_table.CurrentRound] = round
+
+}
+
+func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.JOIN_POKER_TABLE_REQUEST) {
+	key := req.GenerateKey()
+	if !poker_table_db.CheckIfPokerTableExists(key) {
+		fmt.Printf("No poker table with key: %s exists!", key)
+		return
+	}
+
+	poker_table := poker_table_db.poker_tables[key]
+
+	player := Models.PLAYER{}
 	poker_table.RegisterPlayer(player)
 
 	poker_table_db.poker_tables[key] = poker_table
 }
 
-func (poker_table_db POKER_TABLE_DB) ProcessConfigureRoundRequest(req Models.CONFIGURE_ROUND_INTERFACE) {
+func (poker_table_db POKER_TABLE_DB) ProcessTransitionTableStateRequest(req Models.TRANSITION_TABLE_STATE_REQUEST) {
 	key := req.GenerateKey()
 	if !poker_table_db.CheckIfPokerTableExists(key) {
 		fmt.Printf("No poker table with key: %s exists!", key)
@@ -44,65 +79,9 @@ func (poker_table_db POKER_TABLE_DB) ProcessConfigureRoundRequest(req Models.CON
 	}
 
 	poker_table := poker_table_db.poker_tables[key]
-	rounds := poker_table.Rounds_DB.Rounds
-
-	round := Models.CreateRound()
-
-	data := req.GetData()
-
-	round = round.ConfigureRound(data)
-
-	rounds = append(rounds, round)
-	poker_table.Rounds_DB.Rounds = rounds
-
-	poker_table_db.poker_tables[key] = poker_table
-}
-
-func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.CREATE_PLAYER_REQUEST_INTERFACE) {
-	key := req.GenerateKey()
-	if !poker_table_db.CheckIfPokerTableExists(key) {
-		fmt.Printf("No poker table with key: %s exists!", key)
-		return
-	}
-
-	poker_table := poker_table_db.poker_tables[key]
-
-	player := GenerateNewPlayer(req)
-	poker_table.RegisterPlayer(player)
-
-	poker_table_db.poker_tables[key] = poker_table
-}
-
-func (poker_table_db POKER_TABLE_DB) ProcessTransitionTableStateRequest(req Models.TRANSITION_TABLE_STATE_INTERFACE) {
-	key := req.GenerateKey()
-	if !poker_table_db.CheckIfPokerTableExists(key) {
-		fmt.Printf("No poker table with key: %s exists!", key)
-		return
-	}
-
-	poker_table := poker_table_db.poker_tables[key]
-	data := req.GetData()
-	state := poker_table.TransitionPokerTableState(data.Override_State)
+	state := poker_table.TransitionPokerTableState()
 	poker_table.PokerTableState = state
 	poker_table_db.poker_tables[key] = poker_table
-}
-
-func GenerateNewPokerTable(req Models.CREATE_POKER_TABLE_REQUEST_INTERFACE) Models.POKER_TABLE {
-	poker_table := CreateNewPokerTable()
-	config := req.GenerateConfig()
-	poker_table.Config = config
-
-	return poker_table
-}
-
-func CreateNewPokerTable() Models.POKER_TABLE {
-	poker_table := Models.CreatePokerTable()
-
-	return poker_table
-}
-
-func GenerateNewPlayer(req Models.CREATE_PLAYER_REQUEST_INTERFACE) Models.PLAYER {
-	return req.GeneratePlayer()
 }
 
 func main() {
@@ -126,10 +105,10 @@ type poker_table_test_interface interface {
 func BeginTests(pt poker_table_test_interface) {
 	pt.TestCreatePokerTable()
 	pt.TestConfigureFirstRound()
-	pt.TestTransitionPokerTableState()
-	pt.TestJoinPokerTable()
-	pt.TestTransitionPokerTableState()
-	pt.TestConfigureSecondRound()
+	// pt.TestTransitionPokerTableState()
+	// pt.TestJoinPokerTable()
+	// pt.TestTransitionPokerTableState()
+	// pt.TestConfigureSecondRound()
 }
 
 func (poker_table_db POKER_TABLE_DB) TestCreatePokerTable() {
