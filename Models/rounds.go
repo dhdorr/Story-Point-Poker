@@ -9,6 +9,7 @@ type ROUND_STATE int
 const (
 	StateRoundInitializing ROUND_STATE = iota
 	StateRoundStarted
+	StateRoundResults
 	StateRoundEnded
 )
 
@@ -30,6 +31,12 @@ type ROUND_CONFIG struct {
 	Time_Limit        int
 }
 
+type ROUND_RESULTS struct {
+	Round_Title string
+	Votes       []VOTE
+	Most_Voted  []VOTE
+}
+
 func (round ROUND) TransitionRoundState() ROUND_STATE {
 	state := round.Round_State
 
@@ -37,6 +44,8 @@ func (round ROUND) TransitionRoundState() ROUND_STATE {
 	case StateRoundInitializing:
 		return StateRoundStarted
 	case StateRoundStarted:
+		return StateRoundResults
+	case StateRoundResults:
 		return StateRoundEnded
 	default:
 		panic(fmt.Errorf("unkown state: %v", state))
@@ -57,7 +66,7 @@ func (rounds_db *ROUNDS_DB) RegisterRound(round ROUND) {
 	rounds_db.Rounds = append(rounds_db.Rounds, round)
 }
 
-func (round ROUND) ApplyConfigurationFromRequest(req CONFIGURE_ROUND_REQUEST) ROUND {
+func (round *ROUND) ApplyConfigurationFromRequest(req CONFIGURE_ROUND_REQUEST) {
 	round.Config = ROUND_CONFIG{
 		Round_Title:       req.Round_Title,
 		Round_Description: req.Round_Description,
@@ -66,7 +75,8 @@ func (round ROUND) ApplyConfigurationFromRequest(req CONFIGURE_ROUND_REQUEST) RO
 		Time_Limit:        req.Time_Limit,
 	}
 
-	return round
+	votes_db := make(map[string]VOTE)
+	round.Votes_DB = votes_db
 }
 
 func (rounds_db ROUNDS_DB) GetCurrentRound(round_number int) (ROUND, error) {
@@ -84,4 +94,47 @@ func (config ROUND_CONFIG) ConfigureRoundConfig(req CONFIGURE_ROUND_REQUEST) ROU
 	config.Time_Limit = req.Time_Limit
 
 	return config
+}
+
+func (round *ROUND) CastVote(req SUBMIT_VOTE_REQUEST) {
+	votes_db := round.Votes_DB
+
+	vote := VOTE{}
+	vote.Value = req.Value
+	votes_db[req.Voter_name] = vote
+
+	round.Votes_DB = votes_db
+}
+
+func (round ROUND) GenerateRoundResults() ROUND_RESULTS {
+	votes := round.Votes_DB
+
+	result := ROUND_RESULTS{}
+	most_voted_map := make(map[VOTE]int)
+	most_voted := VOTE{}
+	vote_count := 0
+	votes_list := make([]VOTE, 0, 10)
+
+	for _, v := range votes {
+		_, ok := most_voted_map[v]
+		if ok {
+			most_voted_map[v] += 1
+		} else {
+			most_voted_map[v] = 1
+			votes_list = append(votes_list, v)
+		}
+	}
+
+	for mv, count := range most_voted_map {
+		if count >= vote_count {
+			most_voted = mv
+			vote_count = count
+		}
+	}
+
+	result.Most_Voted = append(result.Most_Voted, most_voted)
+	result.Round_Title = round.Config.Round_Title
+	result.Votes = votes_list
+
+	return result
 }

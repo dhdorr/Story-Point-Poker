@@ -50,12 +50,68 @@ func (poker_table_db POKER_TABLE_DB) ProcessConfigureRoundRequest(req Models.CON
 		return
 	}
 
-	round = round.ApplyConfigurationFromRequest(req)
+	round.ApplyConfigurationFromRequest(req)
 	round.Round_State = round.TransitionRoundState()
 
 	poker_table.Rounds_DB.Rounds[poker_table.CurrentRound] = round
 
 	// Respond with game table page
+}
+
+func (poker_table_db *POKER_TABLE_DB) ProcessSubmitVoteRequest(req Models.SUBMIT_VOTE_REQUEST) {
+	key := req.GenerateKey()
+	if !poker_table_db.CheckIfPokerTableExists(key) {
+		fmt.Printf("No poker table with key: %s exists!", key)
+		return
+	}
+
+	// TODO: do
+	poker_table := poker_table_db.poker_tables[key]
+	round, err := poker_table.Rounds_DB.GetCurrentRound(poker_table.CurrentRound)
+	if err != nil {
+		fmt.Printf("Error: %v\n", err)
+		return
+	}
+
+	round.CastVote(req)
+	fmt.Printf("Votes: %v\n", round.Votes_DB)
+	poker_table.Rounds_DB.Rounds[0] = round
+	poker_table_db.poker_tables[key] = poker_table
+}
+
+func (poker_table_db POKER_TABLE_DB) ProcessShowRoundResultsRequest(req Models.MOCK_REQUEST) {
+	key := req.GenerateKey()
+	if !poker_table_db.CheckIfPokerTableExists(key) {
+		fmt.Printf("No poker table with key: %s exists!", key)
+		return
+	}
+
+	// TODO: do
+	poker_table := poker_table_db.poker_tables[key]
+	round, err := poker_table.Rounds_DB.GetCurrentRound(poker_table.CurrentRound)
+	if err != nil {
+		fmt.Printf("Error: %v", err)
+		return
+	}
+
+	results := round.GenerateRoundResults()
+	fmt.Printf("RESULTS: %v", results)
+}
+
+func (poker_table_db *POKER_TABLE_DB) ProcessProceedToNextRoundRequest(req Models.CONFIGURE_ROUND_REQUEST) {
+	key := req.GenerateKey()
+	if !poker_table_db.CheckIfPokerTableExists(key) {
+		fmt.Printf("No poker table with key: %s exists!", key)
+		return
+	}
+
+	// TODO: do
+	poker_table := poker_table_db.poker_tables[key]
+	round := Models.CreateRound()
+	poker_table.Rounds_DB.RegisterRound(round)
+	poker_table.CurrentRound += 1
+
+	poker_table_db.poker_tables[key] = poker_table
 }
 
 func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.JOIN_POKER_TABLE_REQUEST) {
@@ -87,12 +143,16 @@ type poker_table_test_interface interface {
 	TestCreatePokerTable()
 	TestConfigureFirstRound()
 	TestJoinPokerTable()
+	TestSubmitVote()
+	TestGetRoundResults()
 }
 
 func BeginTests(pt poker_table_test_interface) {
 	pt.TestCreatePokerTable()
 	pt.TestConfigureFirstRound()
 	pt.TestJoinPokerTable()
+	pt.TestSubmitVote()
+	pt.TestGetRoundResults()
 }
 
 func (poker_table_db POKER_TABLE_DB) TestCreatePokerTable() {
@@ -132,6 +192,44 @@ func (poker_table_db POKER_TABLE_DB) TestJoinPokerTable() {
 	poker_table_db.ProcessJoinPokerTableRequest(join_poker_table_request)
 
 	fmt.Printf("Players: %v\n", poker_table_db.poker_tables["test:test"].Players_DB.Players)
+}
+
+func (poker_table_db POKER_TABLE_DB) TestSubmitVote() {
+	submit_vote_request := Models.SUBMIT_VOTE_REQUEST{
+		Value:          3,
+		Voter_name:     "artemis",
+		Table_name:     "test",
+		Table_passcode: "test",
+	}
+
+	poker_table_db.ProcessSubmitVoteRequest(submit_vote_request)
+
+	submit_vote_request2 := Models.SUBMIT_VOTE_REQUEST{
+		Value:          5,
+		Voter_name:     "apollo",
+		Table_name:     "test",
+		Table_passcode: "test",
+	}
+
+	poker_table_db.ProcessSubmitVoteRequest(submit_vote_request2)
+
+	submit_vote_request3 := Models.SUBMIT_VOTE_REQUEST{
+		Value:          3,
+		Voter_name:     "derek",
+		Table_name:     "test",
+		Table_passcode: "test",
+	}
+
+	poker_table_db.ProcessSubmitVoteRequest(submit_vote_request3)
+	fmt.Printf("VOTES: %v \n", poker_table_db.poker_tables["test:test"].Rounds_DB.Rounds[0].Votes_DB)
+}
+
+func (poker_table_db POKER_TABLE_DB) TestGetRoundResults() {
+	mock := Models.MOCK_REQUEST{
+		Table_name:     "test",
+		Table_passcode: "test",
+	}
+	poker_table_db.ProcessShowRoundResultsRequest(mock)
 }
 
 // END TESTING

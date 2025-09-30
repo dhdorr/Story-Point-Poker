@@ -45,3 +45,23 @@ type TRANSITION_TABLE_STATE_REQUEST struct {
 func (req TRANSITION_TABLE_STATE_REQUEST) GenerateKey() string {
 	return req.Table_name + ":" + req.Table_passcode
 }
+
+type SUBMIT_VOTE_REQUEST struct {
+	Value          int
+	Voter_name     string
+	Table_name     string
+	Table_passcode string
+}
+
+func (req SUBMIT_VOTE_REQUEST) GenerateKey() string {
+	return req.Table_name + ":" + req.Table_passcode
+}
+
+type MOCK_REQUEST struct {
+	Table_name     string
+	Table_passcode string
+}
+
+func (req MOCK_REQUEST) GenerateKey() string {
+	return req.Table_name + ":" + req.Table_passcode
+}
