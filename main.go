@@ -98,7 +98,7 @@ func (poker_table_db POKER_TABLE_DB) ProcessShowRoundResultsRequest(req Models.M
 	fmt.Printf("RESULTS: %v", results)
 }
 
-func (poker_table_db *POKER_TABLE_DB) ProcessProceedToNextRoundRequest(req Models.CONFIGURE_ROUND_REQUEST) {
+func (poker_table_db POKER_TABLE_DB) ProcessProceedToNextRoundRequest(req Models.MOCK_REQUEST) {
 	key := req.GenerateKey()
 	if !poker_table_db.CheckIfPokerTableExists(key) {
 		fmt.Printf("No poker table with key: %s exists!", key)
@@ -112,6 +112,7 @@ func (poker_table_db *POKER_TABLE_DB) ProcessProceedToNextRoundRequest(req Model
 	poker_table.CurrentRound += 1
 
 	poker_table_db.poker_tables[key] = poker_table
+	fmt.Printf("Rounds Count: %v \n", len(poker_table_db.poker_tables[key].Rounds_DB.Rounds))
 }
 
 func (poker_table_db POKER_TABLE_DB) ProcessJoinPokerTableRequest(req Models.JOIN_POKER_TABLE_REQUEST) {
@@ -145,6 +146,7 @@ type poker_table_test_interface interface {
 	TestJoinPokerTable()
 	TestSubmitVote()
 	TestGetRoundResults()
+	TestProceedNextRound()
 }
 
 func BeginTests(pt poker_table_test_interface) {
@@ -153,6 +155,7 @@ func BeginTests(pt poker_table_test_interface) {
 	pt.TestJoinPokerTable()
 	pt.TestSubmitVote()
 	pt.TestGetRoundResults()
+	pt.TestProceedNextRound()
 }
 
 func (poker_table_db POKER_TABLE_DB) TestCreatePokerTable() {
@@ -230,6 +233,14 @@ func (poker_table_db POKER_TABLE_DB) TestGetRoundResults() {
 		Table_passcode: "test",
 	}
 	poker_table_db.ProcessShowRoundResultsRequest(mock)
+}
+
+func (poker_table_db POKER_TABLE_DB) TestProceedNextRound() {
+	mock := Models.MOCK_REQUEST{
+		Table_name:     "test",
+		Table_passcode: "test",
+	}
+	poker_table_db.ProcessProceedToNextRoundRequest(mock)
 }
 
 // END TESTING
